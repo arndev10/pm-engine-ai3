@@ -97,7 +97,7 @@ export default function ArtifactViewer ({ artifact, onSave }: Props) {
           <button
             type="button"
             onClick={handleStartEdit}
-            className="rounded border border-slate-300 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+            className="rounded border border-border px-3 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
           >
             Editar
           </button>
@@ -107,14 +107,14 @@ export default function ArtifactViewer ({ artifact, onSave }: Props) {
               type="button"
               onClick={handleSave}
               disabled={isSaving}
-              className="rounded bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
+              className="rounded bg-success px-3 py-1 text-xs font-medium text-success-foreground hover:opacity-90 disabled:opacity-50 transition-opacity"
             >
               {isSaving ? 'Guardando…' : 'Guardar'}
             </button>
             <button
               type="button"
               onClick={handleCancel}
-              className="rounded border border-slate-300 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+              className="rounded border border-border px-3 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
             >
               Cancelar
             </button>
@@ -123,28 +123,28 @@ export default function ArtifactViewer ({ artifact, onSave }: Props) {
         <button
           type="button"
           onClick={() => handleExport('docx')}
-          className="rounded border border-slate-300 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+          className="rounded border border-border px-3 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
         >
           Descargar Word
         </button>
         <button
           type="button"
           onClick={() => handleExport('pdf')}
-          className="rounded border border-slate-300 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+          className="rounded border border-border px-3 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
         >
           Descargar PDF
         </button>
-        {saveError && <span className="text-xs text-red-600">{saveError}</span>}
+        {saveError && <span className="text-xs text-destructive">{saveError}</span>}
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1">Observaciones</label>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Observaciones</label>
           <textarea
             value={observations}
             onChange={e => setObservations(e.target.value)}
             placeholder="Notas u observaciones sobre este artefacto…"
-            className="w-full rounded border border-slate-200 px-3 py-2 text-sm text-slate-700 min-h-[80px] focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
+            className="w-full rounded border border-input px-3 py-2 text-sm text-foreground min-h-[80px] focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           />
           <div className="mt-2 flex items-center gap-2">
             <button
@@ -161,13 +161,13 @@ export default function ArtifactViewer ({ artifact, onSave }: Props) {
                 }
               }}
               disabled={isSaving}
-              className="rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+              className="rounded border border-border px-2 py-1 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-50"
             >
               {isSaving ? 'Guardando…' : 'Guardar observaciones'}
             </button>
           </div>
         </div>
-      <div className="rounded-lg border border-slate-200 bg-white p-4 overflow-x-auto">
+      <div className="rounded-lg border border-border bg-card p-4 overflow-x-auto">
         {artifact.type === 'charter' && (
           <CharterView
             data={content as CharterContent}
@@ -225,15 +225,15 @@ function CharterView ({ data, isEditing, onChange }: {
 
       <Section title="Entregables">
         <table className="w-full text-left">
-          <thead><tr className="border-b border-slate-200">
-            <th className="py-1 pr-4 font-medium text-slate-600">Nombre</th>
-            <th className="py-1 font-medium text-slate-600">Descripción</th>
+          <thead><tr className="border-b border-border">
+            <th className="py-1 pr-4 font-medium text-muted-foreground">Nombre</th>
+            <th className="py-1 font-medium text-muted-foreground">Descripción</th>
           </tr></thead>
           <tbody>
             {data.deliverables.map((d, i) => (
-              <tr key={i} className="border-b border-slate-100">
+              <tr key={i} className="border-b border-border">
                 <td className="py-1.5 pr-4 font-medium">{d.name}</td>
-                <td className="py-1.5 text-slate-600">{d.description}</td>
+                <td className="py-1.5 text-muted-foreground">{d.description}</td>
               </tr>
             ))}
           </tbody>
@@ -242,15 +242,15 @@ function CharterView ({ data, isEditing, onChange }: {
 
       <Section title="Hitos">
         <table className="w-full text-left">
-          <thead><tr className="border-b border-slate-200">
-            <th className="py-1 pr-4 font-medium text-slate-600">Hito</th>
-            <th className="py-1 font-medium text-slate-600">Fecha estimada</th>
+          <thead><tr className="border-b border-border">
+            <th className="py-1 pr-4 font-medium text-muted-foreground">Hito</th>
+            <th className="py-1 font-medium text-muted-foreground">Fecha estimada</th>
           </tr></thead>
           <tbody>
             {data.milestones.map((m, i) => (
-              <tr key={i} className="border-b border-slate-100">
+              <tr key={i} className="border-b border-border">
                 <td className="py-1.5 pr-4">{m.name}</td>
-                <td className="py-1.5 text-slate-500">{m.date_estimate ?? '—'}</td>
+                <td className="py-1.5 text-muted-foreground">{m.date_estimate ?? '—'}</td>
               </tr>
             ))}
           </tbody>
@@ -277,15 +277,15 @@ function CharterView ({ data, isEditing, onChange }: {
 
       <Section title="Stakeholders">
         <table className="w-full text-left">
-          <thead><tr className="border-b border-slate-200">
-            <th className="py-1 pr-4 font-medium text-slate-600">Rol</th>
-            <th className="py-1 font-medium text-slate-600">Responsabilidad</th>
+          <thead><tr className="border-b border-border">
+            <th className="py-1 pr-4 font-medium text-muted-foreground">Rol</th>
+            <th className="py-1 font-medium text-muted-foreground">Responsabilidad</th>
           </tr></thead>
           <tbody>
             {data.stakeholders.map((s, i) => (
-              <tr key={i} className="border-b border-slate-100">
+              <tr key={i} className="border-b border-border">
                 <td className="py-1.5 pr-4 font-medium">{s.role}</td>
-                <td className="py-1.5 text-slate-600">{s.responsibility}</td>
+                <td className="py-1.5 text-muted-foreground">{s.responsibility}</td>
               </tr>
             ))}
           </tbody>
@@ -321,24 +321,24 @@ function RiskRegisterView ({ data, isEditing, onChange }: {
   return (
     <table className="w-full text-left text-sm">
       <thead>
-        <tr className="border-b border-slate-200">
-          <th className="py-2 pr-2 font-medium text-slate-600">#</th>
-          <th className="py-2 pr-2 font-medium text-slate-600">Descripción</th>
-          <th className="py-2 pr-2 font-medium text-slate-600">Prob.</th>
-          <th className="py-2 pr-2 font-medium text-slate-600">Impacto</th>
-          <th className="py-2 pr-2 font-medium text-slate-600">Severidad</th>
-          <th className="py-2 pr-2 font-medium text-slate-600">Mitigación</th>
-          <th className="py-2 pr-2 font-medium text-slate-600">Owner</th>
-          <th className="py-2 font-medium text-slate-600">Estado</th>
+        <tr className="border-b border-border">
+          <th className="py-2 pr-2 font-medium text-muted-foreground">#</th>
+          <th className="py-2 pr-2 font-medium text-muted-foreground">Descripción</th>
+          <th className="py-2 pr-2 font-medium text-muted-foreground">Prob.</th>
+          <th className="py-2 pr-2 font-medium text-muted-foreground">Impacto</th>
+          <th className="py-2 pr-2 font-medium text-muted-foreground">Severidad</th>
+          <th className="py-2 pr-2 font-medium text-muted-foreground">Mitigación</th>
+          <th className="py-2 pr-2 font-medium text-muted-foreground">Owner</th>
+          <th className="py-2 font-medium text-muted-foreground">Estado</th>
         </tr>
       </thead>
       <tbody>
         {data.risks.map((r, i) => (
-          <tr key={r.id} className="border-b border-slate-100">
-            <td className="py-2 pr-2 text-slate-400">{r.id}</td>
+          <tr key={r.id} className="border-b border-border">
+            <td className="py-2 pr-2 text-muted-foreground">{r.id}</td>
             <td className="py-2 pr-2 max-w-xs">
               {isEditing
-                ? <input className="w-full rounded border border-slate-200 px-1 py-0.5 text-sm" value={r.description} onChange={e => updateRow(i, 'description', e.target.value)} />
+                ? <input className="w-full rounded border border-input px-1 py-0.5 text-sm" value={r.description} onChange={e => updateRow(i, 'description', e.target.value)} />
                 : r.description}
             </td>
             <td className="py-2 pr-2 capitalize">{r.probability}</td>
@@ -350,7 +350,7 @@ function RiskRegisterView ({ data, isEditing, onChange }: {
             </td>
             <td className="py-2 pr-2 max-w-xs">
               {isEditing
-                ? <input className="w-full rounded border border-slate-200 px-1 py-0.5 text-sm" value={r.mitigation} onChange={e => updateRow(i, 'mitigation', e.target.value)} />
+                ? <input className="w-full rounded border border-input px-1 py-0.5 text-sm" value={r.mitigation} onChange={e => updateRow(i, 'mitigation', e.target.value)} />
                 : r.mitigation}
             </td>
             <td className="py-2 pr-2">{r.owner}</td>
@@ -383,26 +383,26 @@ function StakeholderView ({ data, isEditing, onChange }: {
   return (
     <table className="w-full text-left text-sm">
       <thead>
-        <tr className="border-b border-slate-200">
-          <th className="py-2 pr-2 font-medium text-slate-600">#</th>
-          <th className="py-2 pr-2 font-medium text-slate-600">Rol / Nombre</th>
-          <th className="py-2 pr-2 font-medium text-slate-600">Interés</th>
-          <th className="py-2 pr-2 font-medium text-slate-600">Influencia</th>
-          <th className="py-2 font-medium text-slate-600">Estrategia</th>
+        <tr className="border-b border-border">
+          <th className="py-2 pr-2 font-medium text-muted-foreground">#</th>
+          <th className="py-2 pr-2 font-medium text-muted-foreground">Rol / Nombre</th>
+          <th className="py-2 pr-2 font-medium text-muted-foreground">Interés</th>
+          <th className="py-2 pr-2 font-medium text-muted-foreground">Influencia</th>
+          <th className="py-2 font-medium text-muted-foreground">Estrategia</th>
         </tr>
       </thead>
       <tbody>
         {data.stakeholders.map((s, i) => (
-          <tr key={s.id} className="border-b border-slate-100">
-            <td className="py-2 pr-2 text-slate-400">{s.id}</td>
+          <tr key={s.id} className="border-b border-border">
+            <td className="py-2 pr-2 text-muted-foreground">{s.id}</td>
             <td className="py-2 pr-2 font-medium">
               {isEditing
-                ? <input className="w-full rounded border border-slate-200 px-1 py-0.5 text-sm" value={s.name_role} onChange={e => updateRow(i, 'name_role', e.target.value)} />
+                ? <input className="w-full rounded border border-input px-1 py-0.5 text-sm" value={s.name_role} onChange={e => updateRow(i, 'name_role', e.target.value)} />
                 : s.name_role}
             </td>
             <td className="py-2 pr-2">
               {isEditing
-                ? <input className="w-full rounded border border-slate-200 px-1 py-0.5 text-sm" value={s.interest} onChange={e => updateRow(i, 'interest', e.target.value)} />
+                ? <input className="w-full rounded border border-input px-1 py-0.5 text-sm" value={s.interest} onChange={e => updateRow(i, 'interest', e.target.value)} />
                 : s.interest}
             </td>
             <td className="py-2 pr-2">
@@ -412,7 +412,7 @@ function StakeholderView ({ data, isEditing, onChange }: {
             </td>
             <td className="py-2">
               {isEditing
-                ? <input className="w-full rounded border border-slate-200 px-1 py-0.5 text-sm" value={s.engagement_strategy} onChange={e => updateRow(i, 'engagement_strategy', e.target.value)} />
+                ? <input className="w-full rounded border border-input px-1 py-0.5 text-sm" value={s.engagement_strategy} onChange={e => updateRow(i, 'engagement_strategy', e.target.value)} />
                 : s.engagement_strategy}
             </td>
           </tr>
@@ -439,8 +439,8 @@ function WBSNode ({ node, depth }: { node: WBSTask; depth: number }) {
   const isDeliverable = depth === 1
   return (
     <div style={{ marginLeft: depth * 20 }}>
-      <div className={`flex items-center gap-2 py-1 ${isPhase ? 'font-semibold text-slate-800' : isDeliverable ? 'font-medium text-slate-700' : 'text-slate-600'}`}>
-        <span className="text-xs text-slate-400 font-mono w-10 shrink-0">{node.id}</span>
+      <div className={`flex items-center gap-2 py-1 ${isPhase ? 'font-semibold text-foreground' : isDeliverable ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+        <span className="text-xs text-muted-foreground font-mono w-10 shrink-0">{node.id}</span>
         <span>{node.name}</span>
       </div>
       {node.children?.map(child => (
@@ -455,7 +455,7 @@ function WBSNode ({ node, depth }: { node: WBSTask; depth: number }) {
 function Section ({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">{title}</h3>
+      <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</h3>
       {children}
     </div>
   )
@@ -463,16 +463,16 @@ function Section ({ title, children }: { title: string; children: React.ReactNod
 
 function EditableField ({ value, isEditing, onChange }: { value: string; isEditing: boolean; onChange: (v: string) => void }) {
   if (isEditing) {
-    return <input className="w-full rounded border border-slate-200 px-2 py-1 text-sm" value={value} onChange={e => onChange(e.target.value)} />
+    return <input className="w-full rounded border border-input px-2 py-1 text-sm" value={value} onChange={e => onChange(e.target.value)} />
   }
-  return <p className="text-slate-700">{value}</p>
+  return <p className="text-foreground">{value}</p>
 }
 
 function EditableTextarea ({ value, isEditing, onChange }: { value: string; isEditing: boolean; onChange: (v: string) => void }) {
   if (isEditing) {
-    return <textarea className="w-full rounded border border-slate-200 px-2 py-1 text-sm min-h-[80px]" value={value} onChange={e => onChange(e.target.value)} />
+    return <textarea className="w-full rounded border border-input px-2 py-1 text-sm min-h-[80px]" value={value} onChange={e => onChange(e.target.value)} />
   }
-  return <p className="text-slate-700 whitespace-pre-wrap">{value}</p>
+  return <p className="text-foreground whitespace-pre-wrap">{value}</p>
 }
 
 function EditableList ({ items, isEditing, onChange }: { items: string[]; isEditing: boolean; onChange: (v: string[]) => void }) {
@@ -482,7 +482,7 @@ function EditableList ({ items, isEditing, onChange }: { items: string[]; isEdit
         {items.map((item, i) => (
           <input
             key={i}
-            className="w-full rounded border border-slate-200 px-2 py-1 text-sm"
+            className="w-full rounded border border-input px-2 py-1 text-sm"
             value={item}
             onChange={e => {
               const updated = [...items]
@@ -495,7 +495,7 @@ function EditableList ({ items, isEditing, onChange }: { items: string[]; isEdit
     )
   }
   return (
-    <ul className="list-disc list-inside space-y-0.5 text-slate-700">
+    <ul className="list-disc list-inside space-y-0.5 text-foreground">
       {items.map((item, i) => <li key={i}>{item}</li>)}
     </ul>
   )

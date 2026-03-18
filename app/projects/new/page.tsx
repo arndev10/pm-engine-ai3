@@ -11,6 +11,8 @@ const METHODOLOGIES = [
   { value: 'hibrido', label: 'Híbrido' }
 ] as const
 
+const inputClass = 'mt-1 block w-full rounded-md border border-input bg-card px-3 py-2 text-foreground shadow-sm placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring'
+
 export default function NewProjectPage () {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -93,20 +95,20 @@ export default function NewProjectPage () {
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/" className="text-sm text-slate-600 hover:text-slate-800">
+        <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
           ← Inicio
         </Link>
-        <h1 className="mt-2 text-2xl font-bold text-slate-800">
+        <h1 className="mt-2 text-2xl font-bold text-foreground">
           Nuevo proyecto
         </h1>
-        <p className="mt-1 text-slate-600">
+        <p className="mt-1 text-muted-foreground">
           Sube un contrato, SoW o RFP y completa los metadatos. Luego podrás procesar el documento y generar los artefactos.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-lg border border-border bg-card p-6 shadow-sm">
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-medium text-foreground">
             Documento PDF *
           </label>
           <input
@@ -127,21 +129,21 @@ export default function NewProjectPage () {
             onDragLeave={onDragLeave}
             className={`mt-1 flex min-h-[120px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed px-4 py-6 text-center transition-colors ${
               isDragging
-                ? 'border-slate-500 bg-slate-100'
-                : 'border-slate-300 bg-slate-50 hover:border-slate-400 hover:bg-slate-100'
+                ? 'border-primary bg-primary/5'
+                : 'border-input bg-muted/50 hover:border-primary/50 hover:bg-muted'
             }`}
           >
-            <span className="text-sm font-medium text-slate-600">
+            <span className="text-sm font-medium text-foreground">
               {fileName ?? 'Arrastre el PDF aquí o haga clic para seleccionar'}
             </span>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-muted-foreground">
               Máx. 15 MB. Contrato, SoW, RFP o anexo.
             </p>
           </div>
         </div>
 
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-slate-700">
+          <label htmlFor="name" className="block text-sm font-medium text-foreground">
             Nombre del proyecto
           </label>
           <input
@@ -151,12 +153,12 @@ export default function NewProjectPage () {
             value={form.name}
             onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
             placeholder="Ej. Implementación ERP 2025"
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-800 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label htmlFor="industry" className="block text-sm font-medium text-slate-700">
+          <label htmlFor="industry" className="block text-sm font-medium text-foreground">
             Industria
           </label>
           <select
@@ -164,7 +166,7 @@ export default function NewProjectPage () {
             name="industry"
             value={form.industry}
             onChange={e => setForm(f => ({ ...f, industry: e.target.value }))}
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-800 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+            className={inputClass}
           >
             <option value="">Selecciona</option>
             {INDUSTRIES.map(i => (
@@ -175,7 +177,7 @@ export default function NewProjectPage () {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="duration_estimate" className="block text-sm font-medium text-slate-700">
+            <label htmlFor="duration_estimate" className="block text-sm font-medium text-foreground">
               Duración estimada
             </label>
             <input
@@ -185,11 +187,11 @@ export default function NewProjectPage () {
               value={form.duration_estimate}
               onChange={e => setForm(f => ({ ...f, duration_estimate: e.target.value }))}
               placeholder="Ej. 6 meses"
-              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-800 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              className={inputClass}
             />
           </div>
           <div>
-            <label htmlFor="budget_estimate" className="block text-sm font-medium text-slate-700">
+            <label htmlFor="budget_estimate" className="block text-sm font-medium text-foreground">
               Presupuesto estimado
             </label>
             <input
@@ -199,34 +201,34 @@ export default function NewProjectPage () {
               value={form.budget_estimate}
               onChange={e => setForm(f => ({ ...f, budget_estimate: e.target.value }))}
               placeholder="Ej. 100k USD"
-              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-800 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              className={inputClass}
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-medium text-foreground">
             Enfoque
           </label>
           <div className="mt-2 flex flex-wrap gap-4">
             {METHODOLOGIES.map(({ value, label }) => (
-              <label key={value} className="flex items-center gap-2">
+              <label key={value} className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
                   name="methodology"
                   value={value}
                   checked={form.methodology === value}
                   onChange={() => setForm(f => ({ ...f, methodology: value }))}
-                  className="h-4 w-4 border-slate-300 text-slate-800 focus:ring-slate-500"
+                  className="h-4 w-4 border-input text-primary focus:ring-ring"
                 />
-                <span className="text-sm text-slate-700">{label}</span>
+                <span className="text-sm text-foreground">{label}</span>
               </label>
             ))}
           </div>
         </div>
 
         {error && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
           </p>
         )}
@@ -235,13 +237,13 @@ export default function NewProjectPage () {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
             {isSubmitting ? 'Subiendo…' : 'Crear proyecto y subir'}
           </button>
           <Link
             href="/"
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
           >
             Cancelar
           </Link>

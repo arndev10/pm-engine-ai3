@@ -35,15 +35,23 @@ yarn-error.log*
 # vercel
 .vercel
 
-# ide / cursor
+# ide / cursor / claude code
 .idea
 .vscode
 .cursor
 .agents/
 skills-lock.json
+.claude/
 
 # conversaciones y datos locales del IDE
 agent-transcripts/
+
+# TypeScript build info (cache local)
+tsconfig.tsbuildinfo
+
+# datos locales (SQLite DB y archivos subidos)
+/data/
+/public/uploads/*/
 
 # assets generados por el IDE (capturas, etc.)
 /assets/

@@ -25,6 +25,8 @@ Analiza el siguiente texto extraído de un PDF y devuelve ÚNICAMENTE un JSON v�
 
 Reglas: Usa arrays vacíos [] si no encuentras datos para un campo. evidence puede ser vacío. language debe ser "es" o "en" según el idioma del documento. document_type infiérelo del contenido. Responde solo con el JSON.`
 
+const OPENAI_MODEL = process.env.OPENAI_MODEL ?? 'gpt-4o-mini'
+
 export async function structureWithOpenAI (
   text: string,
   projectName: string,
@@ -37,7 +39,7 @@ export async function structureWithOpenAI (
   }
 
   const res = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: OPENAI_MODEL,
     messages: [
       { role: 'system', content: STRUCTURE_PROMPT },
       { role: 'user', content: `Nombre del proyecto (metadato): ${projectName}\n\n---\nTexto del documento:\n\n${chunk}` }

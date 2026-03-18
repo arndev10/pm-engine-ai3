@@ -1,34 +1,25 @@
 import { NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase/server'
-import { loadEnv } from '@/lib/load-env'
+import { getDb } from '@/lib/db'
 
 export async function GET (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  loadEnv()
   const { id } = await params
-  const supabase = getSupabaseAdmin()
+  const db = getDb()
 
-  const { data: artifacts, error } = await supabase
-    .from('artifacts')
-    .select('*')
-    .eq('project_id', id)
-    .order('created_at')
+  const rows = db.prepare(
+    'SELECT * FROM artifacts WHERE project_id = ? ORDER BY created_at'
+  ).all(id) as Record<string, unknown>[]
 
-  if (error) {
-    return NextResponse.json({ error: 'Error al cargar artefactos' }, { status: 500 })
-  }
-
-  const mapped = (artifacts ?? []).map((a: Record<string, unknown>) => {
-    if (a.observations === undefined && a.content_json && typeof a.content_json === 'object') {
-      const c = a.content_json as Record<string, unknown>
-      if (c._observations !== undefined) a.observations = String(c._observations)
+  const artifacts = rows.map(a => {
+    if (typeof a.content_json === 'string') {
+      try { a.content_json = JSON.parse(a.content_json as string) } catch {}
     }
     return a
   })
 
-  return NextResponse.json({ artifacts: mapped }, {
+  return NextResponse.json({ artifacts }, {
     headers: { 'Cache-Control': 'no-store, max-age=0' }
   })
 }

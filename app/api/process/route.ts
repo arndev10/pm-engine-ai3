@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { getDb } from '@/lib/db'
 import { structureWithOpenAI } from '@/lib/openai/structure-document'
-import { loadEnv } from '@/lib/load-env'
+import path from 'path'
+import fs from 'fs'
 import type { StructuredContext } from '@/types'
 
 const MAX_PDF_PAGES = Number(process.env.NEXT_PUBLIC_MAX_PDF_PAGES) || 150
@@ -11,7 +12,7 @@ function stubContext (projectName: string): StructuredContext {
     project_name: projectName || 'Sin nombre',
     document_type: 'contract',
     language: 'es',
-    scope_summary: 'Texto extraído. Sin OPENAI_API_KEY no se estructura con IA.',
+    scope_summary: 'Contexto extraído del PDF. Configura OPENAI_API_KEY para análisis con IA.',
     deliverables: [],
     obligations: [],
     sla: [],
@@ -25,9 +26,10 @@ function stubContext (projectName: string): StructuredContext {
   }
 }
 
-async function extractTextFromPdf (buffer: ArrayBuffer): Promise<{ text: string; numpages: number }> {
+async function extractTextFromPdf (buffer: Buffer): Promise<{ text: string; numpages: number }> {
   const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs')
-  const doc = await pdfjsLib.getDocument({ data: new Uint8Array(buffer) }).promise
+  const data = new Uint8Array(buffer)
+  const doc = await pdfjsLib.getDocument({ data }).promise
   const pages: string[] = []
   for (let i = 1; i <= doc.numPages; i++) {
     const page = await doc.getPage(i)
@@ -42,16 +44,6 @@ async function extractTextFromPdf (buffer: ArrayBuffer): Promise<{ text: string;
 }
 
 export async function POST (request: Request) {
-  loadEnv()
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
-  if (!url || !key) {
-    return NextResponse.json(
-      { error: 'Faltan variables de Supabase.' },
-      { status: 503 }
-    )
-  }
-
   let projectId: string
   try {
     const body = await request.json()
@@ -63,65 +55,45 @@ export async function POST (request: Request) {
     return NextResponse.json({ error: 'Body JSON inválido' }, { status: 400 })
   }
 
-  const supabase = getSupabaseAdmin()
+  const db = getDb()
 
-  const { data: project, error: projectError } = await supabase
-    .from('projects')
-    .select('id, name')
-    .eq('id', projectId)
-    .single()
-
-  if (projectError || !project) {
+  const project = db.prepare('SELECT id, name FROM projects WHERE id = ?').get(projectId) as { id: string; name: string } | undefined
+  if (!project) {
     return NextResponse.json({ error: 'Proyecto no encontrado' }, { status: 404 })
   }
 
-  const { data: documents, error: docsError } = await supabase
-    .from('documents')
-    .select('id, file_url')
-    .eq('project_id', projectId)
-    .order('created_at', { ascending: false })
-    .limit(1)
+  const doc = db.prepare(
+    'SELECT id, file_url FROM documents WHERE project_id = ? ORDER BY created_at DESC LIMIT 1'
+  ).get(projectId) as { id: string; file_url: string } | undefined
 
-  if (docsError || !documents?.length) {
+  if (!doc) {
     return NextResponse.json({ error: 'No hay documento asociado al proyecto' }, { status: 404 })
   }
 
-  const doc = documents[0]
-  let buffer: ArrayBuffer
+  const localPath = path.join(process.cwd(), 'public', doc.file_url)
+  if (!fs.existsSync(localPath)) {
+    return NextResponse.json({ error: 'Archivo no encontrado en el servidor' }, { status: 404 })
+  }
+
+  let buffer: Buffer
   try {
-    const res = await fetch(doc.file_url)
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const contentType = res.headers.get('content-type') ?? ''
-    if (!contentType.includes('pdf') && !contentType.includes('octet-stream')) {
-      const text = await res.text()
-      const preview = text.slice(0, 200)
-      throw new Error(`La URL no devolvió un PDF (content-type: ${contentType}). Preview: ${preview}`)
-    }
-    buffer = await res.arrayBuffer()
+    buffer = fs.readFileSync(localPath)
   } catch (e) {
-    const message = e instanceof Error ? e.message : 'No se pudo descargar el PDF'
-    return NextResponse.json(
-      { error: process.env.NODE_ENV === 'development' ? message : 'No se pudo descargar el PDF' },
-      { status: 502 }
-    )
+    const message = e instanceof Error ? e.message : 'No se pudo leer el archivo'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 
   let text: string
   let numpages: number
-  const isDev = process.env.NODE_ENV === 'development'
   try {
     const result = await extractTextFromPdf(buffer)
     text = result.text
     numpages = result.numpages
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)
-    if (isDev) console.error('PDF extract error:', e)
+    console.error('PDF extract error:', e)
     return NextResponse.json(
-      {
-        error: isDev
-          ? `No se pudo extraer texto del PDF: ${message}. El PDF puede tener imágenes y texto; si es solo escaneado (imágenes), no hay texto extraíble.`
-          : 'No se pudo extraer texto del PDF. El PDF puede tener imágenes y texto; si es solo escaneado (imágenes), no hay texto extraíble.'
-      },
+      { error: `No se pudo extraer texto del PDF: ${message}` },
       { status: 500 }
     )
   }
@@ -133,14 +105,8 @@ export async function POST (request: Request) {
     )
   }
 
-  const { error: updateDocError } = await supabase
-    .from('documents')
-    .update({ parsed_text: text.slice(0, 500000), page_count: numpages })
-    .eq('id', doc.id)
-
-  if (updateDocError) {
-    return NextResponse.json({ error: 'Error al guardar el texto extraído' }, { status: 500 })
-  }
+  db.prepare('UPDATE documents SET parsed_text = ?, page_count = ? WHERE id = ?')
+    .run(text.slice(0, 500000), numpages, doc.id)
 
   const apiKey = process.env.OPENAI_API_KEY
   let structuredContext: StructuredContext
@@ -150,7 +116,7 @@ export async function POST (request: Request) {
     } catch (e) {
       console.error('OpenAI structure error:', e)
       return NextResponse.json(
-        { error: 'Error al estructurar con OpenAI. Revisa OPENAI_API_KEY y el texto del PDF.' },
+        { error: `Error al estructurar con OpenAI: ${e instanceof Error ? e.message : String(e)}` },
         { status: 500 }
       )
     }
@@ -158,21 +124,8 @@ export async function POST (request: Request) {
     structuredContext = stubContext(project.name || 'Sin nombre')
   }
 
-  const { error: updateProjError } = await supabase
-    .from('projects')
-    .update({
-      structured_context_json: structuredContext,
-      updated_at: new Date().toISOString()
-    })
-    .eq('id', projectId)
+  db.prepare('UPDATE projects SET structured_context_json = ?, updated_at = ? WHERE id = ?')
+    .run(JSON.stringify(structuredContext), new Date().toISOString(), projectId)
 
-  if (updateProjError) {
-    return NextResponse.json({ error: 'Error al actualizar el proyecto' }, { status: 500 })
-  }
-
-  return NextResponse.json({
-    ok: true,
-    page_count: numpages,
-    text_length: text.length
-  })
+  return NextResponse.json({ ok: true, page_count: numpages, text_length: text.length })
 }

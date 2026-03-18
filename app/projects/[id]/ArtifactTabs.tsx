@@ -73,7 +73,7 @@ export default function ArtifactTabs ({ projectId, initialArtifacts }: Props) {
 
   return (
     <div className="space-y-4">
-      <nav className="flex gap-1 border-b border-slate-200">
+      <nav className="flex gap-1 border-b border-border">
         {TABS.map(tab => (
           <button
             key={tab.type}
@@ -81,13 +81,13 @@ export default function ArtifactTabs ({ projectId, initialArtifacts }: Props) {
             onClick={() => setActiveTab(tab.type)}
             className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
               activeTab === tab.type
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/30'
             }`}
           >
             {tab.label}
             {artifacts.some(a => a.type === tab.type) && (
-              <span className="ml-1.5 inline-block h-2 w-2 rounded-full bg-green-400" />
+              <span className="ml-1.5 inline-block h-2 w-2 rounded-full bg-success" />
             )}
           </button>
         ))}
@@ -101,7 +101,7 @@ export default function ArtifactTabs ({ projectId, initialArtifacts }: Props) {
           onGenerated={handleGenerated}
         />
         {activeArtifact && (
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-muted-foreground">
             Generado: {new Date(activeArtifact.updated_at).toLocaleString()}
           </span>
         )}
@@ -113,7 +113,7 @@ export default function ArtifactTabs ({ projectId, initialArtifacts }: Props) {
           onSave={handleSave}
         />
       ) : (
-        <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center text-slate-500">
+        <div className="rounded-lg border border-dashed border-border bg-muted/30 p-8 text-center text-muted-foreground">
           <p>No se ha generado este artefacto aún.</p>
           <p className="mt-1 text-sm">Haz clic en el botón para generarlo con IA.</p>
         </div>

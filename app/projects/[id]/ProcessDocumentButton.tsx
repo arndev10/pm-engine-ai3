@@ -36,12 +36,12 @@ export default function ProcessDocumentButton ({ projectId }: { projectId: strin
         type="button"
         onClick={handleProcess}
         disabled={isProcessing}
-        className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+        className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
       >
         {isProcessing ? 'Procesando…' : 'Procesar documento'}
       </button>
       {error && (
-        <p className="text-sm text-red-600">
+        <p className="text-sm text-destructive">
           {error}
         </p>
       )}

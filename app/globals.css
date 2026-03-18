@@ -2,12 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground: #0f172a;
-  --background: #f8fafc;
-}
+@layer base {
+  :root {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 93%;
+    --card: 222 44% 11%;
+    --card-foreground: 210 40% 93%;
+    --popover: 222 44% 13%;
+    --popover-foreground: 210 40% 93%;
+    --primary: 213 94% 58%;
+    --primary-foreground: 222 47% 7%;
+    --secondary: 32 85% 55%;
+    --secondary-foreground: 222 47% 7%;
+    --muted: 222 30% 16%;
+    --muted-foreground: 214 22% 52%;
+    --accent: 213 80% 48%;
+    --accent-foreground: 210 40% 93%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 93%;
+    --success: 141 70% 45%;
+    --success-foreground: 210 40% 93%;
+    --warning: 36 100% 50%;
+    --warning-foreground: 222 47% 7%;
+    --border: 222 28% 18%;
+    --input: 222 30% 14%;
+    --ring: 213 94% 58%;
+    --radius: 0.5rem;
+  }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
+  body {
+    color: hsl(var(--foreground));
+    background: hsl(var(--background));
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+
+  select option {
+    background: hsl(var(--popover));
+    color: hsl(var(--foreground));
+  }
 }

@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase/server'
-import { loadEnv } from '@/lib/load-env'
-
-const BUCKET = 'documents'
+import { getDb } from '@/lib/db'
+import path from 'path'
+import fs from 'fs'
 
 export async function PATCH (
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  loadEnv()
   const { id: projectId } = await params
   if (!projectId) {
     return NextResponse.json({ error: 'id es obligatorio' }, { status: 400 })
@@ -21,74 +19,53 @@ export async function PATCH (
     return NextResponse.json({ error: 'Body JSON inválido' }, { status: 400 })
   }
 
-  const updates: Record<string, string> = {}
-  if (body.name !== undefined) updates.name = String(body.name).trim() || 'Sin nombre'
-  if (body.duration_estimate !== undefined) updates.duration_estimate = String(body.duration_estimate).trim()
-  if (body.budget_estimate !== undefined) updates.budget_estimate = String(body.budget_estimate).trim()
-  updates.updated_at = new Date().toISOString()
+  const sets: string[] = []
+  const values: unknown[] = []
 
-  if (Object.keys(updates).length <= 1) {
+  if (body.name !== undefined) { sets.push('name = ?'); values.push(String(body.name).trim() || 'Sin nombre') }
+  if (body.duration_estimate !== undefined) { sets.push('duration_estimate = ?'); values.push(String(body.duration_estimate).trim()) }
+  if (body.budget_estimate !== undefined) { sets.push('budget_estimate = ?'); values.push(String(body.budget_estimate).trim()) }
+
+  if (sets.length === 0) {
     return NextResponse.json({ error: 'Incluye al menos name, duration_estimate o budget_estimate' }, { status: 400 })
   }
 
-  const supabase = getSupabaseAdmin()
-  const { data, error } = await supabase
-    .from('projects')
-    .update(updates)
-    .eq('id', projectId)
-    .select()
-    .single()
+  sets.push('updated_at = ?')
+  values.push(new Date().toISOString())
+  values.push(projectId)
 
-  if (error) {
-    return NextResponse.json(
-      { error: process.env.NODE_ENV === 'development' ? error.message : 'Error al actualizar' },
-      { status: 500 }
-    )
+  const db = getDb()
+  try {
+    db.prepare(`UPDATE projects SET ${sets.join(', ')} WHERE id = ?`).run(...values)
+    const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(projectId)
+    return NextResponse.json({ ok: true, project })
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : 'Error al actualizar' }, { status: 500 })
   }
-  return NextResponse.json({ ok: true, project: data })
 }
 
 export async function DELETE (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  loadEnv()
   const { id: projectId } = await params
   if (!projectId) {
     return NextResponse.json({ error: 'id es obligatorio' }, { status: 400 })
   }
 
-  const supabase = getSupabaseAdmin()
-  const { data: project, error: fetchErr } = await supabase
-    .from('projects')
-    .select('id')
-    .eq('id', projectId)
-    .single()
-
-  if (fetchErr || !project) {
+  const db = getDb()
+  const project = db.prepare('SELECT id FROM projects WHERE id = ?').get(projectId)
+  if (!project) {
     return NextResponse.json({ error: 'Proyecto no encontrado' }, { status: 404 })
   }
 
-  const { data: files } = await supabase.storage
-    .from(BUCKET)
-    .list(projectId, { limit: 500 })
-
-  if (files?.length) {
-    const paths = files.map(f => `${projectId}/${f.name}`)
-    await supabase.storage.from(BUCKET).remove(paths)
+  // Delete local uploaded files
+  const uploadDir = path.join(process.cwd(), 'public', 'uploads', projectId)
+  if (fs.existsSync(uploadDir)) {
+    fs.rmSync(uploadDir, { recursive: true, force: true })
   }
 
-  const { error: deleteErr } = await supabase
-    .from('projects')
-    .delete()
-    .eq('id', projectId)
-
-  if (deleteErr) {
-    return NextResponse.json(
-      { error: process.env.NODE_ENV === 'development' ? deleteErr.message : 'Error al eliminar' },
-      { status: 500 }
-    )
-  }
+  db.prepare('DELETE FROM projects WHERE id = ?').run(projectId)
 
   return NextResponse.json({ ok: true })
 }

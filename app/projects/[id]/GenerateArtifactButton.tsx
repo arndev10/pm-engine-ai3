@@ -50,7 +50,7 @@ export default function GenerateArtifactButton ({ projectId, type, hasExisting, 
         type="button"
         onClick={handleGenerate}
         disabled={isGenerating}
-        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
+        className="rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground shadow-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
       >
         {isGenerating
           ? 'Generando…'
@@ -58,7 +58,7 @@ export default function GenerateArtifactButton ({ projectId, type, hasExisting, 
             ? `Regenerar ${LABELS[type]}`
             : `Generar ${LABELS[type]}`}
       </button>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   )
 }

@@ -13,12 +13,19 @@ import {
   ShadingType,
   LevelFormat
 } from 'docx'
-import type { Artifact, ArtifactType } from '@/types'
+import type {
+  Artifact,
+  ArtifactType,
+  CharterContent,
+  RiskRegisterContent,
+  StakeholderRegisterContent,
+  WBSContent,
+  WBSTask
+} from '@/types'
 
 const US_LETTER_WIDTH = 12240
 const US_LETTER_HEIGHT = 15840
 const MARGIN = 1440
-const CONTENT_WIDTH = US_LETTER_WIDTH - MARGIN * 2
 
 const BORDER = { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' }
 const BORDERS = { top: BORDER, bottom: BORDER, left: BORDER, right: BORDER }
@@ -68,6 +75,18 @@ function buildTable (
   })
 }
 
+function addWBSNode (
+  children: (Paragraph | Table)[],
+  node: WBSTask,
+  indent: number
+): void {
+  children.push(new Paragraph({
+    children: [new TextRun({ text: `${node.id} ${node.name}`, bold: indent === 0 })],
+    indent: { left: indent * 720 }
+  }))
+  node.children?.forEach(ch => addWBSNode(children, ch, indent + 1))
+}
+
 export async function artifactToDocxBuffer (artifact: Artifact): Promise<Buffer> {
   const children: (Paragraph | Table)[] = []
   const title = artifactTitle(artifact.type)
@@ -77,7 +96,7 @@ export async function artifactToDocxBuffer (artifact: Artifact): Promise<Buffer>
 
   switch (artifact.type) {
     case 'charter': {
-      const c = artifact.content_json
+      const c = artifact.content_json as CharterContent
       children.push(par(c.project_name, HeadingLevel.HEADING_2))
       children.push(par(c.scope_summary))
       children.push(par('Objetivos', HeadingLevel.HEADING_2))
@@ -88,16 +107,14 @@ export async function artifactToDocxBuffer (artifact: Artifact): Promise<Buffer>
         }))
       )
       children.push(par('Entregables', HeadingLevel.HEADING_2))
-      const delCols = [3276, 6084]
       children.push(buildTable(
-        delCols,
+        [3276, 6084],
         ['Nombre', 'Descripción'],
         c.deliverables.map(d => [d.name, d.description])
       ))
       children.push(par('Hitos', HeadingLevel.HEADING_2))
-      const mileCols = [3744, 5616]
       children.push(buildTable(
-        mileCols,
+        [3744, 5616],
         ['Hito', 'Fecha estimada'],
         c.milestones.map(m => [m.name, m.date_estimate ?? ''])
       ))
@@ -120,9 +137,8 @@ export async function artifactToDocxBuffer (artifact: Artifact): Promise<Buffer>
       children.push(par('Duración', HeadingLevel.HEADING_2))
       children.push(par(c.duration_summary))
       children.push(par('Stakeholders', HeadingLevel.HEADING_2))
-      const stCols = [3276, 6084]
       children.push(buildTable(
-        stCols,
+        [3276, 6084],
         ['Rol', 'Responsabilidad'],
         c.stakeholders.map(s => [s.role, s.responsibility])
       ))
@@ -136,10 +152,9 @@ export async function artifactToDocxBuffer (artifact: Artifact): Promise<Buffer>
       break
     }
     case 'risk_register': {
-      const r = artifact.content_json
-      const riskCols = [400, 2500, 800, 800, 800, 1800, 1000, 1260]
+      const r = artifact.content_json as RiskRegisterContent
       children.push(buildTable(
-        riskCols,
+        [400, 2500, 800, 800, 800, 1800, 1000, 1260],
         ['#', 'Descripción', 'Prob.', 'Impacto', 'Severidad', 'Mitigación', 'Owner', 'Estado'],
         r.risks.map(risk => [
           String(risk.id),
@@ -155,10 +170,9 @@ export async function artifactToDocxBuffer (artifact: Artifact): Promise<Buffer>
       break
     }
     case 'stakeholder_register': {
-      const s = artifact.content_json
-      const stkCols = [500, 2000, 700, 800, 5360]
+      const s = artifact.content_json as StakeholderRegisterContent
       children.push(buildTable(
-        stkCols,
+        [500, 2000, 700, 800, 5360],
         ['#', 'Rol / Nombre', 'Interés', 'Influencia', 'Estrategia'],
         s.stakeholders.map(sh => [
           String(sh.id),
@@ -172,20 +186,8 @@ export async function artifactToDocxBuffer (artifact: Artifact): Promise<Buffer>
     }
     case 'wbs':
     case 'backlog': {
-      const w = artifact.content_json
-      function addPhase (
-        phase: { id: string; name: string; children?: Array<{ id: string; name: string; children?: unknown[] }> },
-        indent = 0
-      ) {
-        children.push(new Paragraph({
-          children: [new TextRun({ text: `${phase.id} ${phase.name}`, bold: indent === 0 })],
-          indent: { left: indent * 720 }
-        }))
-        phase.children?.forEach((ch: { id: string; name: string; children?: unknown[] }) =>
-          addPhase(ch, indent + 1)
-        )
-      }
-      w.phases.forEach(ph => addPhase(ph))
+      const w = artifact.content_json as WBSContent
+      w.phases.forEach(ph => addWBSNode(children, ph, 0))
       break
     }
   }

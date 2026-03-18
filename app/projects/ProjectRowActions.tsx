@@ -58,14 +58,14 @@ export default function ProjectRowActions ({
     <div className="relative flex items-center gap-2" ref={menuRef}>
       <Link
         href={`/projects/${projectId}`}
-        className="rounded px-2 py-1 text-sm font-medium text-slate-700 hover:bg-slate-100"
+        className="rounded px-2 py-1 text-sm font-medium text-foreground hover:bg-muted transition-colors"
       >
         Abrir
       </Link>
       <button
         type="button"
         onClick={() => setIsOpen(prev => !prev)}
-        className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+        className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         aria-label="Menú"
       >
         <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -73,10 +73,10 @@ export default function ProjectRowActions ({
         </svg>
       </button>
       {isOpen && (
-        <div className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded-md border border-slate-200 bg-white py-1 shadow-lg">
+        <div className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded-md border border-border bg-popover py-1 shadow-lg">
           <Link
             href={`/projects/${projectId}`}
-            className="block px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+            className="block px-3 py-2 text-left text-sm text-foreground hover:bg-muted transition-colors"
             onClick={() => setIsOpen(false)}
           >
             Abrir proyecto
@@ -84,7 +84,7 @@ export default function ProjectRowActions ({
           <button
             type="button"
             onClick={() => { setIsOpen(false); setShowEditModal(true) }}
-            className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+            className="block w-full px-3 py-2 text-left text-sm text-foreground hover:bg-muted transition-colors"
           >
             Editar proyecto
           </button>
@@ -92,7 +92,7 @@ export default function ProjectRowActions ({
             type="button"
             onClick={handleDelete}
             disabled={isDeleting}
-            className="block w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+            className="block w-full px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
           >
             {isDeleting ? 'Eliminando…' : 'Eliminar'}
           </button>

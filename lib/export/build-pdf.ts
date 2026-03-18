@@ -1,5 +1,13 @@
 import PDFDocument from 'pdfkit'
-import type { Artifact, ArtifactType } from '@/types'
+import type {
+  Artifact,
+  ArtifactType,
+  CharterContent,
+  RiskRegisterContent,
+  StakeholderRegisterContent,
+  WBSContent,
+  WBSTask
+} from '@/types'
 
 function artifactTitle (type: ArtifactType): string {
   const t: Record<ArtifactType, string> = {
@@ -10,6 +18,12 @@ function artifactTitle (type: ArtifactType): string {
     backlog: 'Product Backlog'
   }
   return t[type]
+}
+
+function addWBSNode (doc: InstanceType<typeof PDFDocument>, node: WBSTask, indent: number): void {
+  doc.font('Helvetica').fontSize(indent === 0 ? 11 : 10)
+  doc.text(`${'  '.repeat(indent)}${node.id} ${node.name}`)
+  node.children?.forEach(ch => addWBSNode(doc, ch, indent + 1))
 }
 
 export function artifactToPdfBuffer (artifact: Artifact): Promise<Buffer> {
@@ -27,7 +41,7 @@ export function artifactToPdfBuffer (artifact: Artifact): Promise<Buffer> {
 
     switch (artifact.type) {
       case 'charter': {
-        const c = artifact.content_json
+        const c = artifact.content_json as CharterContent
         doc.fontSize(14).text(c.project_name)
         doc.moveDown(0.5)
         doc.fontSize(10).font('Helvetica').text(c.scope_summary)
@@ -67,7 +81,7 @@ export function artifactToPdfBuffer (artifact: Artifact): Promise<Buffer> {
         break
       }
       case 'risk_register': {
-        const r = artifact.content_json
+        const r = artifact.content_json as RiskRegisterContent
         doc.fontSize(10).font('Helvetica-Bold')
         doc.text('ID', 50, doc.y)
         doc.text('Descripción', 70, doc.y)
@@ -94,7 +108,7 @@ export function artifactToPdfBuffer (artifact: Artifact): Promise<Buffer> {
         break
       }
       case 'stakeholder_register': {
-        const s = artifact.content_json
+        const s = artifact.content_json as StakeholderRegisterContent
         doc.fontSize(10).font('Helvetica-Bold')
         doc.text('Rol/Nombre', 50, doc.y)
         doc.text('Interés', 200, doc.y)
@@ -113,18 +127,8 @@ export function artifactToPdfBuffer (artifact: Artifact): Promise<Buffer> {
       }
       case 'wbs':
       case 'backlog': {
-        const w = artifact.content_json
-        function addPhase (
-          phase: { id: string; name: string; children?: Array<{ id: string; name: string; children?: unknown[] }> },
-          indent = 0
-        ) {
-          doc.font('Helvetica').fontSize(indent === 0 ? 11 : 10)
-          doc.text(`${'  '.repeat(indent)}${phase.id} ${phase.name}`)
-          phase.children?.forEach((ch: { id: string; name: string; children?: unknown[] }) =>
-            addPhase(ch, indent + 1)
-          )
-        }
-        w.phases.forEach(ph => addPhase(ph))
+        const w = artifact.content_json as WBSContent
+        w.phases.forEach(ph => addWBSNode(doc, ph, 0))
         break
       }
     }

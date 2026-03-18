@@ -54,7 +54,7 @@ Documento para cerrar alcance, prioridades y decisiones antes de construir. Incl
 |---|----------|------------------|
 | 5.1 | ¿Límite de **tokens por documento** que estás dispuesto a consumir en una corrida (aprox)? | Ej. “máx 50k input” para definir si mandas todo el doc o solo chunks. |
 | 5.2 | ¿Quieres **cache** de “contexto estructurado” (el JSON base) para no re-parsear el mismo PDF en cada generación? | Sí, desde MVP / En fase 2. |
-| 5.3 | ¿Modelo por defecto? | gpt-4o / gpt-4o-mini / gpt-3.5-turbo → equilibrio costo/calidad. |
+| 5.3 | ¿Modelo por defecto? | gpt-5-nano / gpt-4o / gpt-4o-mini / gpt-3.5-turbo → equilibrio costo/calidad. |
 | 5.4 | ¿Una sola llamada “megaprompt” (contrato + instrucción) o **pipeline** (extraer JSON → luego N llamadas por artefacto)? | Megaprompt / Pipeline (recomendado para tokens y control). |
 
 ---

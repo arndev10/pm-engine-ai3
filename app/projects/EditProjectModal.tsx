@@ -12,6 +12,8 @@ interface Props {
   onSuccess?: () => void
 }
 
+const inputClass = 'mt-1 block w-full rounded-md border border-input bg-card px-3 py-2 text-foreground shadow-sm placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring'
+
 export default function EditProjectModal ({
   projectId,
   initialName,
@@ -65,56 +67,56 @@ export default function EditProjectModal ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
       <div
-        className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-lg"
+        className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-lg"
         onClick={e => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-slate-800">Editar proyecto</h2>
+        <h2 className="text-lg font-semibold text-foreground">Editar proyecto</h2>
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
-            <label htmlFor="edit-name" className="block text-sm font-medium text-slate-700">Título</label>
+            <label htmlFor="edit-name" className="block text-sm font-medium text-foreground">Título</label>
             <input
               id="edit-name"
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-800 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              className={inputClass}
             />
           </div>
           <div>
-            <label htmlFor="edit-duration" className="block text-sm font-medium text-slate-700">Duración</label>
+            <label htmlFor="edit-duration" className="block text-sm font-medium text-foreground">Duración</label>
             <input
               id="edit-duration"
               type="text"
               value={duration}
               onChange={e => setDuration(e.target.value)}
               placeholder="Ej. 18 meses"
-              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-800 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              className={inputClass}
             />
           </div>
           <div>
-            <label htmlFor="edit-budget" className="block text-sm font-medium text-slate-700">Presupuesto</label>
+            <label htmlFor="edit-budget" className="block text-sm font-medium text-foreground">Presupuesto</label>
             <input
               id="edit-budget"
               type="text"
               value={budget}
               onChange={e => setBudget(e.target.value)}
               placeholder="Ej. 300K USD"
-              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-800 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              className={inputClass}
             />
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex gap-2 justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              className="rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="rounded-md bg-slate-800 px-3 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-opacity"
             >
               {isSaving ? 'Guardando…' : 'Guardar'}
             </button>

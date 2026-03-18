@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase/server'
-import { loadEnv } from '@/lib/load-env'
+import { getDb } from '@/lib/db'
 import { artifactToDocxBuffer } from '@/lib/export/build-docx'
 import { artifactToPdfBuffer } from '@/lib/export/build-pdf'
 import type { Artifact } from '@/types'
@@ -10,46 +9,37 @@ const EXPORT_FILENAMES: Record<string, string> = {
   risk_register: '02_Risk-register',
   stakeholder_register: '03_Stakeholders',
   wbs: '04_WBS',
-  backlog: '04_WBS'
-}
-
-function safeFilename (type: string): string {
-  return EXPORT_FILENAMES[type] ?? 'artifact'
+  backlog: '05_Backlog'
 }
 
 export async function GET (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  loadEnv()
   const { id } = await params
   const url = new URL(_request.url)
   const format = url.searchParams.get('format')
 
   if (format !== 'docx' && format !== 'pdf') {
-    return NextResponse.json(
-      { error: 'format debe ser docx o pdf' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: 'format debe ser docx o pdf' }, { status: 400 })
   }
 
-  const supabase = getSupabaseAdmin()
-  const { data: artifact, error } = await supabase
-    .from('artifacts')
-    .select('*')
-    .eq('id', id)
-    .single()
-
-  if (error || !artifact) {
+  const db = getDb()
+  const row = db.prepare('SELECT * FROM artifacts WHERE id = ?').get(id) as Record<string, unknown> | undefined
+  if (!row) {
     return NextResponse.json({ error: 'Artefacto no encontrado' }, { status: 404 })
   }
 
-  const typed = artifact as Artifact
-  const name = safeFilename(typed.type)
+  if (typeof row.content_json === 'string') {
+    try { row.content_json = JSON.parse(row.content_json as string) } catch {}
+  }
+
+  const artifact = row as unknown as Artifact
+  const name = EXPORT_FILENAMES[artifact.type] ?? 'artifact'
 
   try {
     if (format === 'docx') {
-      const buffer = await artifactToDocxBuffer(typed)
+      const buffer = await artifactToDocxBuffer(artifact)
       const body = new Uint8Array(buffer)
       return new NextResponse(body, {
         headers: {
@@ -59,7 +49,7 @@ export async function GET (
         }
       })
     }
-    const buffer = await artifactToPdfBuffer(typed)
+    const buffer = await artifactToPdfBuffer(artifact)
     const body = new Uint8Array(buffer)
     return new NextResponse(body, {
       headers: {

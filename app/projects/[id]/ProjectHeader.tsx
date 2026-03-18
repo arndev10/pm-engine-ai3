@@ -27,22 +27,22 @@ export default function ProjectHeader ({
 
   return (
     <div>
-      <Link href="/projects" className="text-sm text-slate-600 hover:text-slate-800">
+      <Link href="/projects" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
         ← Proyectos
       </Link>
       <div className="mt-2 flex items-center gap-2">
-        <h1 className="text-2xl font-bold text-slate-800">
+        <h1 className="text-2xl font-bold text-foreground">
           {name || 'Sin nombre'}
         </h1>
         <button
           type="button"
           onClick={() => setShowEditModal(true)}
-          className="rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+          className="rounded-md border border-border px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           Editar
         </button>
       </div>
-      <p className="mt-1 text-slate-600">{subtitle}</p>
+      <p className="mt-1 text-muted-foreground">{subtitle}</p>
       {showEditModal && (
         <EditProjectModal
           projectId={projectId}

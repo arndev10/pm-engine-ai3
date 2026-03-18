@@ -1,17 +1,14 @@
 import { NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { getDb, newId } from '@/lib/db'
 import { generateArtifact } from '@/lib/openai/generate-artifact'
-import { loadEnv } from '@/lib/load-env'
 import type { ArtifactType, StructuredContext, ProjectMetadata } from '@/types'
 
 const VALID_TYPES: ArtifactType[] = ['charter', 'risk_register', 'stakeholder_register', 'wbs', 'backlog']
 
 export async function POST (request: Request) {
-  loadEnv()
-
   const apiKey = process.env.OPENAI_API_KEY?.trim()
   if (!apiKey) {
-    return NextResponse.json({ error: 'Falta OPENAI_API_KEY' }, { status: 503 })
+    return NextResponse.json({ error: 'Falta OPENAI_API_KEY en .env' }, { status: 503 })
   }
 
   let projectId: string
@@ -30,19 +27,23 @@ export async function POST (request: Request) {
     return NextResponse.json({ error: 'Body JSON inválido' }, { status: 400 })
   }
 
-  const supabase = getSupabaseAdmin()
+  const db = getDb()
 
-  const { data: project, error: projErr } = await supabase
-    .from('projects')
-    .select('id, name, industry, duration_estimate, budget_estimate, methodology, structured_context_json')
-    .eq('id', projectId)
-    .single()
+  const project = db.prepare(
+    'SELECT id, name, industry, duration_estimate, budget_estimate, methodology, structured_context_json FROM projects WHERE id = ?'
+  ).get(projectId) as {
+    id: string; name: string; industry: string; duration_estimate: string
+    budget_estimate: string; methodology: string; structured_context_json: string | null
+  } | undefined
 
-  if (projErr || !project) {
+  if (!project) {
     return NextResponse.json({ error: 'Proyecto no encontrado' }, { status: 404 })
   }
 
-  const context = project.structured_context_json as StructuredContext | null
+  let context: StructuredContext | null = null
+  if (project.structured_context_json) {
+    try { context = JSON.parse(project.structured_context_json) } catch {}
+  }
   if (!context) {
     return NextResponse.json({ error: 'El proyecto no tiene contexto estructurado. Procesa el documento primero.' }, { status: 400 })
   }
@@ -52,7 +53,7 @@ export async function POST (request: Request) {
     industry: project.industry,
     duration_estimate: project.duration_estimate,
     budget_estimate: project.budget_estimate,
-    methodology: project.methodology
+    methodology: project.methodology as ProjectMetadata['methodology']
   }
 
   let content
@@ -64,23 +65,25 @@ export async function POST (request: Request) {
     return NextResponse.json({ error: `Error al generar artefacto: ${msg}` }, { status: 500 })
   }
 
-  const { data: artifact, error: upsertErr } = await supabase
-    .from('artifacts')
-    .upsert(
-      {
-        project_id: projectId,
-        type: artifactType,
-        content_json: content,
-        updated_at: new Date().toISOString()
-      },
-      { onConflict: 'project_id,type' }
-    )
-    .select()
-    .single()
+  const now = new Date().toISOString()
 
-  if (upsertErr) {
-    console.error('Upsert artifact error:', upsertErr)
-    return NextResponse.json({ error: 'Error al guardar el artefacto' }, { status: 500 })
+  // Upsert: insert or replace existing artifact of same type
+  const existing = db.prepare('SELECT id FROM artifacts WHERE project_id = ? AND type = ?').get(projectId, artifactType) as { id: string } | undefined
+
+  let artifactId: string
+  if (existing) {
+    artifactId = existing.id
+    db.prepare('UPDATE artifacts SET content_json = ?, observations = NULL, updated_at = ? WHERE id = ?')
+      .run(JSON.stringify(content), now, artifactId)
+  } else {
+    artifactId = newId()
+    db.prepare('INSERT INTO artifacts (id, project_id, type, content_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)')
+      .run(artifactId, projectId, artifactType, JSON.stringify(content), now, now)
+  }
+
+  const artifact = db.prepare('SELECT * FROM artifacts WHERE id = ?').get(artifactId) as Record<string, unknown>
+  if (artifact && typeof artifact.content_json === 'string') {
+    try { artifact.content_json = JSON.parse(artifact.content_json as string) } catch {}
   }
 
   return NextResponse.json({ ok: true, artifact })

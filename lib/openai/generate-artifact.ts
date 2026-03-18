@@ -6,9 +6,12 @@ import type {
   RiskRegisterContent,
   StakeholderRegisterContent,
   WBSContent,
+  WBSTask,
   ArtifactContent,
   ProjectMetadata
 } from '@/types'
+
+const OPENAI_MODEL = process.env.OPENAI_MODEL ?? 'gpt-4o-mini'
 
 const PROMPTS: Record<ArtifactType, string> = {
   charter: `Genera un Project Charter basado en el contexto del proyecto.
@@ -127,7 +130,7 @@ export async function generateArtifact (
   const openai = new OpenAI({ apiKey })
 
   const res = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: OPENAI_MODEL,
     messages: [
       { role: 'system', content: PROMPTS[type] },
       { role: 'user', content: buildUserMessage(context, meta, type) }
@@ -149,15 +152,11 @@ export async function generateArtifact (
   if (!parsed || typeof parsed !== 'object') throw new Error('OpenAI no devolvió un objeto JSON')
 
   switch (type) {
-    case 'charter':
-      return validateCharter(parsed)
-    case 'risk_register':
-      return validateRiskRegister(parsed)
-    case 'stakeholder_register':
-      return validateStakeholderRegister(parsed)
+    case 'charter': return validateCharter(parsed)
+    case 'risk_register': return validateRiskRegister(parsed)
+    case 'stakeholder_register': return validateStakeholderRegister(parsed)
     case 'wbs':
-    case 'backlog':
-      return validateWBS(parsed)
+    case 'backlog': return validateWBS(parsed)
   }
 }
 
@@ -226,8 +225,8 @@ function validateWBS (data: Record<string, unknown>): WBSContent {
   return { phases: phases.map(normalizeWBSNode) }
 }
 
-function normalizeWBSNode (node: Record<string, unknown>): { id: string; name: string; children?: Array<{ id: string; name: string; children?: unknown[] }> } {
-  const result: { id: string; name: string; children?: Array<{ id: string; name: string; children?: unknown[] }> } = {
+function normalizeWBSNode (node: Record<string, unknown>): WBSTask {
+  const result: WBSTask = {
     id: String(node.id ?? ''),
     name: String(node.name ?? '')
   }

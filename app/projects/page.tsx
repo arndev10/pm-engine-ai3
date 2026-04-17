@@ -37,21 +37,17 @@ export default function ProjectsPage () {
   const processed = projects.filter(p => p.is_processed).length
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-10">
+    <div className="flex h-full flex-col px-8 py-7">
 
       {/* Header */}
-      <div className="mb-8 flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">
-            Tus proyectos
-          </h1>
-          <p className="mt-1 text-sm text-white/35">
-            {projects.length} proyecto{projects.length !== 1 ? 's' : ''} · {processed} procesado{processed !== 1 ? 's' : ''}
-          </p>
-        </div>
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-[1.75rem] font-bold leading-none tracking-tight text-white">
+          Hola,{' '}
+          <span className="font-normal text-white/40">aquí están tus proyectos.</span>
+        </h1>
         <Link
           href="/projects/new"
-          className="inline-flex items-center gap-2 rounded-full bg-[hsl(145,100%,46%)] px-4 py-2 text-sm font-bold text-[hsl(0,0%,4%)] hover:bg-[hsl(145,100%,52%)] transition-colors"
+          className="inline-flex items-center gap-2 rounded-xl bg-[hsl(252,90%,65%)] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[hsl(252,80%,40%)/0.35] hover:bg-[hsl(252,90%,70%)] transition-colors"
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
             <path d="M12 5v14M5 12h14"/>
@@ -61,50 +57,39 @@ export default function ProjectsPage () {
       </div>
 
       {/* Filter tabs */}
-      <div className="mb-7 flex items-center gap-1 border-b border-white/[0.07] pb-0">
-        {[
-          { label: 'Todos', count: projects.length, active: true },
-          { label: 'Procesados', count: processed, active: false },
-          { label: 'Sin procesar', count: projects.length - processed, active: false },
-        ].map(tab => (
-          <button
-            key={tab.label}
-            className={[
-              'relative -mb-px px-4 py-2.5 text-sm transition-colors',
-              tab.active
-                ? 'font-semibold text-white after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:bg-[hsl(145,100%,46%)]'
-                : 'font-medium text-white/35 hover:text-white/60'
-            ].join(' ')}
-          >
-            {tab.label}
-            <span className={`ml-1.5 text-xs ${tab.active ? 'text-[hsl(145,100%,50%)]' : 'text-white/25'}`}>
-              {tab.count}
-            </span>
-          </button>
-        ))}
+      <div className="mb-7 flex items-center gap-1">
+        <span className="rounded-lg bg-white/[0.09] px-3.5 py-1.5 text-sm font-medium text-white">
+          Todos <span className="ml-1 text-white/45">({projects.length})</span>
+        </span>
+        <span className="rounded-lg px-3.5 py-1.5 text-sm text-white/35">
+          Procesados <span className="ml-1">({processed})</span>
+        </span>
+        <span className="rounded-lg px-3.5 py-1.5 text-sm text-white/35">
+          Sin procesar <span className="ml-1">({projects.length - processed})</span>
+        </span>
       </div>
 
       {/* Cards */}
       {projects.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-5 py-28">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.07] bg-white/[0.03]">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.25} strokeLinecap="round" strokeLinejoin="round" className="text-white/20">
+        <div className="flex flex-1 flex-col items-center justify-center gap-5">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.07] bg-white/[0.04]">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.25} strokeLinecap="round" strokeLinejoin="round" className="text-white/25">
               <path d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
             </svg>
           </div>
           <div className="text-center">
-            <p className="text-sm font-medium text-white/40">Sin proyectos aún</p>
-            <p className="mt-1 text-xs text-white/20">Sube un contrato o SoW para comenzar</p>
+            <p className="text-sm font-medium text-white/50">Aún no tienes proyectos</p>
+            <p className="mt-1 text-xs text-white/25">Sube un contrato o SoW para comenzar</p>
           </div>
           <Link
             href="/projects/new"
-            className="rounded-full bg-[hsl(145,100%,46%)] px-5 py-2 text-sm font-bold text-[hsl(0,0%,4%)] hover:bg-[hsl(145,100%,52%)] transition-colors"
+            className="rounded-xl bg-[hsl(252,90%,65%)] px-4 py-2 text-sm font-medium text-white shadow-lg shadow-[hsl(252,80%,40%)/0.3] hover:opacity-90 transition-opacity"
           >
             Crear primer proyecto
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 overflow-y-auto pb-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
           {projects.map((p, i) => {
             const { day, month, time } = fmtDate(p.created_at)
             const active = i === 0
@@ -113,14 +98,14 @@ export default function ProjectsPage () {
               <div
                 key={p.id}
                 className={[
-                  'group relative flex min-h-[190px] flex-col gap-3 rounded-xl p-4 transition-all duration-200',
+                  'group relative flex min-h-[188px] flex-col gap-3 rounded-2xl p-4 transition-all duration-200',
                   active
-                    ? 'border border-[hsl(145,100%,46%)/0.35] bg-[hsl(145,60%,8%)] shadow-lg shadow-[hsl(145,100%,20%)/0.2]'
-                    : 'border border-white/[0.08] bg-white/[0.035] hover:border-white/[0.15] hover:bg-white/[0.055]'
+                    ? 'bg-gradient-to-br from-[hsl(252,78%,54%)] to-[hsl(275,68%,48%)] shadow-2xl shadow-[hsl(252,80%,40%)/0.45]'
+                    : 'border border-white/[0.07] bg-[hsl(243,45%,8%)] hover:border-white/[0.14] hover:bg-[hsl(243,45%,10%)]'
                 ].join(' ')}
               >
                 {/* Actions */}
-                <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute right-2.5 top-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
                   <ProjectRowActions
                     projectId={p.id}
                     projectName={p.name || 'Sin nombre'}
@@ -131,10 +116,8 @@ export default function ProjectsPage () {
 
                 {/* Date */}
                 <div>
-                  <div className={`text-[2.25rem] font-bold leading-none tabular-nums ${active ? 'text-[hsl(145,100%,60%)]' : 'text-white'}`}>
-                    {day}
-                  </div>
-                  <div className={`mt-1 text-xs ${active ? 'text-[hsl(145,80%,45%)]' : 'text-white/30'}`}>
+                  <div className="text-[2.25rem] font-bold leading-none tabular-nums text-white">{day}</div>
+                  <div className={`mt-1 text-xs ${active ? 'text-white/60' : 'text-white/35'}`}>
                     {month} · {time}
                   </div>
                 </div>
@@ -143,28 +126,28 @@ export default function ProjectsPage () {
                 <span
                   className={`h-1.5 w-1.5 rounded-full ${
                     p.is_processed
-                      ? 'bg-[hsl(145,100%,46%)]'
-                      : 'bg-white/15'
+                      ? active ? 'bg-white/65' : 'bg-emerald-400'
+                      : active ? 'bg-white/25' : 'bg-white/15'
                   }`}
                   title={p.is_processed ? 'Procesado' : 'Sin procesar'}
                 />
 
-                {/* Name */}
+                {/* Name + industry */}
                 <Link href={`/projects/${p.id}`} className="mt-auto">
-                  <p className="text-sm font-semibold leading-snug line-clamp-2 text-white/90 hover:text-white transition-colors">
+                  <p className={`text-sm font-semibold leading-snug line-clamp-2 ${active ? 'text-white' : 'text-white/88'}`}>
                     {p.name || 'Sin nombre'}
                   </p>
                   {p.industry && (
-                    <p className="mt-1 text-[11px] text-white/30">{p.industry}</p>
+                    <p className={`mt-1 text-[11px] ${active ? 'text-white/55' : 'text-white/35'}`}>
+                      {p.industry}
+                    </p>
                   )}
                 </Link>
 
-                {/* Methodology */}
+                {/* Methodology badge */}
                 {p.methodology && (
-                  <span className={`self-start rounded px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
-                    active
-                      ? 'bg-[hsl(145,100%,46%)/0.15] text-[hsl(145,100%,55%)]'
-                      : 'bg-white/[0.07] text-white/40'
+                  <span className={`self-start rounded-md px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
+                    active ? 'bg-white/20 text-white/85' : 'bg-white/[0.08] text-white/45'
                   }`}>
                     {p.methodology}
                   </span>

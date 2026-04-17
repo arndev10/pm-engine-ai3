@@ -1,48 +1,70 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'PM AI Engine',
   description: 'Analiza contratos y genera artefactos de gestión alineados a PMBOK 8'
 }
 
-export default function RootLayout ({
-  children
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout ({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className="min-h-screen antialiased bg-background text-foreground">
-        <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-sm">
-          <div className="mx-auto max-w-6xl px-6 py-3 flex items-center justify-between">
-            <a href="/" className="flex items-center gap-2.5 group">
-              <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center font-bold text-xs text-primary-foreground select-none">
-                PM
+      <body className="antialiased min-h-screen bg-[hsl(0,0%,4%)] text-white">
+
+        {/* Top nav */}
+        <header className="sticky top-0 z-50 border-b border-white/[0.07] bg-[hsl(0,0%,4%)/0.85] backdrop-blur-md">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
+
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[hsl(145,100%,46%)]">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                  <path d="M3 10 Q5.5 4 8.5 10 Q11.5 16 14.5 10 Q17 5 18 10" stroke="hsl(0,0%,4%)" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               </div>
-              <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+              <span className="text-sm font-bold tracking-tight text-white group-hover:text-white/80 transition-colors">
                 PM AI Engine
               </span>
-            </a>
-            <nav className="flex items-center gap-1">
-              <a
-                href="/projects/new"
-                className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              >
-                Nuevo proyecto
-              </a>
-              <a
-                href="/projects"
-                className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              >
+            </Link>
+
+            {/* Center nav */}
+            <nav className="hidden items-center gap-6 md:flex">
+              <Link href="/projects" className="text-sm text-white/50 hover:text-white transition-colors">
                 Proyectos
-              </a>
+              </Link>
+              <Link href="/projects/new" className="text-sm text-white/50 hover:text-white transition-colors">
+                Nuevo
+              </Link>
+              <Link href="/api/env-check" className="text-sm text-white/50 hover:text-white transition-colors">
+                Estado
+              </Link>
             </nav>
+
+            {/* Right CTAs */}
+            <div className="flex items-center gap-2">
+              <Link
+                href="/projects"
+                className="rounded-full border border-white/15 px-4 py-1.5 text-sm font-medium text-white/80 hover:border-white/30 hover:text-white transition-all duration-150"
+              >
+                Mis Proyectos
+              </Link>
+              <Link
+                href="/projects/new"
+                className="rounded-full bg-[hsl(145,100%,46%)] px-4 py-1.5 text-sm font-bold text-[hsl(0,0%,4%)] hover:bg-[hsl(145,100%,52%)] transition-colors"
+              >
+                Nuevo Proyecto
+              </Link>
+            </div>
+
           </div>
         </header>
-        <main className="mx-auto max-w-6xl px-6 py-8">
+
+        {/* Page content */}
+        <main>
           {children}
         </main>
+
       </body>
     </html>
   )

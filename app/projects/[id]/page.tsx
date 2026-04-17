@@ -41,7 +41,7 @@ export default async function ProjectDetailPage ({ params }: { params: Promise<{
   }
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-5xl px-6 py-8 space-y-8">
       <ProjectHeader
         projectId={project.id}
         name={project.name || 'Sin nombre'}

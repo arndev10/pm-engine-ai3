@@ -13,14 +13,17 @@ export const dynamic = 'force-dynamic'
 export default async function ProjectDetailPage ({ params }: { params: Promise<{ id: string }> }) {
   unstable_noStore()
   const { id } = await params
-  const db = getDb()
-
-  const project = db.prepare(
-    'SELECT id, name, industry, duration_estimate, budget_estimate, methodology, structured_context_json, created_at FROM projects WHERE id = ?'
-  ).get(id) as {
+  let project: {
     id: string; name: string; industry: string; duration_estimate: string
     budget_estimate: string; methodology: string; structured_context_json: string | null; created_at: string
   } | undefined
+
+  try {
+    const db = getDb()
+    project = db.prepare(
+      'SELECT id, name, industry, duration_estimate, budget_estimate, methodology, structured_context_json, created_at FROM projects WHERE id = ?'
+    ).get(id) as typeof project
+  } catch { project = undefined }
 
   if (!project) notFound()
 
@@ -28,16 +31,18 @@ export default async function ProjectDetailPage ({ params }: { params: Promise<{
 
   let artifacts: Artifact[] = []
   if (hasContext) {
-    const rows = db.prepare(
-      'SELECT * FROM artifacts WHERE project_id = ? ORDER BY created_at'
-    ).all(id) as Record<string, unknown>[]
-
-    artifacts = rows.map(row => {
-      if (typeof row.content_json === 'string') {
-        row.content_json = jsonParse(row.content_json as string)
-      }
-      return row as unknown as Artifact
-    })
+    try {
+      const db = getDb()
+      const rows = db.prepare(
+        'SELECT * FROM artifacts WHERE project_id = ? ORDER BY created_at'
+      ).all(id) as Record<string, unknown>[]
+      artifacts = rows.map(row => {
+        if (typeof row.content_json === 'string') {
+          row.content_json = jsonParse(row.content_json as string)
+        }
+        return row as unknown as Artifact
+      })
+    } catch { artifacts = [] }
   }
 
   return (

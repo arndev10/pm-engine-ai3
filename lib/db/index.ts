@@ -3,7 +3,9 @@ import path from 'path'
 import fs from 'fs'
 import { randomUUID } from 'crypto'
 
-const DB_PATH = path.join(process.cwd(), 'data', 'pm-ai.db')
+const DB_PATH = process.env.VERCEL
+  ? '/tmp/pm-ai.db'
+  : path.join(process.cwd(), 'data', 'pm-ai.db')
 
 let _db: Database.Database | null = null
 

@@ -27,12 +27,15 @@ function fmtDate (s: string) {
 }
 
 export default function ProjectsPage () {
-  const db = getDb()
-  const projects = db.prepare(`
-    SELECT id, name, industry, duration_estimate, budget_estimate, methodology, created_at,
-           CASE WHEN structured_context_json IS NOT NULL THEN 1 ELSE 0 END as is_processed
-    FROM projects ORDER BY created_at DESC
-  `).all() as ProjectRow[]
+  let projects: ProjectRow[] = []
+  try {
+    const db = getDb()
+    projects = db.prepare(`
+      SELECT id, name, industry, duration_estimate, budget_estimate, methodology, created_at,
+             CASE WHEN structured_context_json IS NOT NULL THEN 1 ELSE 0 END as is_processed
+      FROM projects ORDER BY created_at DESC
+    `).all() as ProjectRow[]
+  } catch { projects = [] }
 
   const processed = projects.filter(p => p.is_processed).length
 

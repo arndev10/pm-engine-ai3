@@ -21,7 +21,7 @@ function artifactTitle (type: ArtifactType): string {
 }
 
 function addWBSNode (doc: InstanceType<typeof PDFDocument>, node: WBSTask, indent: number): void {
-  doc.font('Helvetica').fontSize(indent === 0 ? 11 : 10)
+  doc.fontSize(indent === 0 ? 11 : 10)
   doc.text(`${'  '.repeat(indent)}${node.id} ${node.name}`)
   node.children?.forEach(ch => addWBSNode(doc, ch, indent + 1))
 }
@@ -36,7 +36,7 @@ export function artifactToPdfBuffer (artifact: Artifact): Promise<Buffer> {
     doc.on('error', reject)
 
     const title = artifactTitle(artifact.type)
-    doc.fontSize(18).font('Helvetica-Bold').text(title, { align: 'left' })
+    doc.fontSize(18).text(title, { align: 'left' })
     doc.moveDown()
 
     switch (artifact.type) {
@@ -44,45 +44,45 @@ export function artifactToPdfBuffer (artifact: Artifact): Promise<Buffer> {
         const c = artifact.content_json as CharterContent
         doc.fontSize(14).text(c.project_name)
         doc.moveDown(0.5)
-        doc.fontSize(10).font('Helvetica').text(c.scope_summary)
+        doc.fontSize(10).text(c.scope_summary)
         doc.moveDown()
-        doc.fontSize(12).font('Helvetica-Bold').text('Objetivos')
-        c.objectives.forEach(o => doc.font('Helvetica').fontSize(10).text(`• ${o}`))
+        doc.fontSize(12).text('Objetivos')
+        c.objectives.forEach(o => doc.fontSize(10).text(`• ${o}`))
         doc.moveDown()
-        doc.fontSize(12).font('Helvetica-Bold').text('Entregables')
+        doc.fontSize(12).text('Entregables')
         c.deliverables.forEach(d => {
-          doc.font('Helvetica').fontSize(10).text(`${d.name}: ${d.description}`)
+          doc.fontSize(10).text(`${d.name}: ${d.description}`)
         })
         doc.moveDown()
-        doc.fontSize(12).font('Helvetica-Bold').text('Hitos')
+        doc.fontSize(12).text('Hitos')
         c.milestones.forEach(m =>
-          doc.font('Helvetica').fontSize(10).text(`${m.name}${m.date_estimate ? ` – ${m.date_estimate}` : ''}`)
+          doc.fontSize(10).text(`${m.name}${m.date_estimate ? ` – ${m.date_estimate}` : ''}`)
         )
         doc.moveDown()
-        doc.fontSize(12).font('Helvetica-Bold').text('Restricciones')
-        c.constraints.forEach(x => doc.font('Helvetica').fontSize(10).text(`• ${x}`))
+        doc.fontSize(12).text('Restricciones')
+        c.constraints.forEach(x => doc.fontSize(10).text(`• ${x}`))
         doc.moveDown()
-        doc.fontSize(12).font('Helvetica-Bold').text('Supuestos')
-        c.assumptions.forEach(x => doc.font('Helvetica').fontSize(10).text(`• ${x}`))
+        doc.fontSize(12).text('Supuestos')
+        c.assumptions.forEach(x => doc.fontSize(10).text(`• ${x}`))
         doc.moveDown()
-        doc.fontSize(12).font('Helvetica-Bold').text('Presupuesto')
-        doc.font('Helvetica').fontSize(10).text(c.budget_summary)
+        doc.fontSize(12).text('Presupuesto')
+        doc.fontSize(10).text(c.budget_summary)
         doc.moveDown(0.5)
-        doc.fontSize(12).font('Helvetica-Bold').text('Duración')
-        doc.font('Helvetica').fontSize(10).text(c.duration_summary)
+        doc.fontSize(12).text('Duración')
+        doc.fontSize(10).text(c.duration_summary)
         doc.moveDown()
-        doc.fontSize(12).font('Helvetica-Bold').text('Stakeholders')
+        doc.fontSize(12).text('Stakeholders')
         c.stakeholders.forEach(s =>
-          doc.font('Helvetica').fontSize(10).text(`${s.role}: ${s.responsibility}`)
+          doc.fontSize(10).text(`${s.role}: ${s.responsibility}`)
         )
         doc.moveDown()
-        doc.fontSize(12).font('Helvetica-Bold').text('Criterios de aprobación')
-        c.approval_criteria.forEach(x => doc.font('Helvetica').fontSize(10).text(`• ${x}`))
+        doc.fontSize(12).text('Criterios de aprobación')
+        c.approval_criteria.forEach(x => doc.fontSize(10).text(`• ${x}`))
         break
       }
       case 'risk_register': {
         const r = artifact.content_json as RiskRegisterContent
-        doc.fontSize(10).font('Helvetica-Bold')
+        doc.fontSize(10)
         doc.text('ID', 50, doc.y)
         doc.text('Descripción', 70, doc.y)
         doc.text('Prob.', 280, doc.y)
@@ -92,7 +92,6 @@ export function artifactToPdfBuffer (artifact: Artifact): Promise<Buffer> {
         doc.text('Owner', 520, doc.y)
         doc.text('Estado', 570, doc.y)
         doc.moveDown(0.5)
-        doc.font('Helvetica')
         r.risks.forEach(risk => {
           const y = doc.y
           doc.fontSize(9).text(String(risk.id), 50, y)
@@ -109,13 +108,12 @@ export function artifactToPdfBuffer (artifact: Artifact): Promise<Buffer> {
       }
       case 'stakeholder_register': {
         const s = artifact.content_json as StakeholderRegisterContent
-        doc.fontSize(10).font('Helvetica-Bold')
+        doc.fontSize(10)
         doc.text('Rol/Nombre', 50, doc.y)
         doc.text('Interés', 200, doc.y)
         doc.text('Influencia', 350, doc.y)
         doc.text('Estrategia', 420, doc.y)
         doc.moveDown(0.5)
-        doc.font('Helvetica')
         s.stakeholders.forEach(sh => {
           doc.fontSize(9).text(sh.name_role, 50, doc.y)
           doc.text(sh.interest.slice(0, 25), 200, doc.y)

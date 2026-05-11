@@ -24,8 +24,14 @@ export async function GET (
     return NextResponse.json({ error: 'format debe ser docx o pdf' }, { status: 400 })
   }
 
-  const db = getDb()
-  const row = db.prepare('SELECT * FROM artifacts WHERE id = ?').get(id) as Record<string, unknown> | undefined
+  let row: Record<string, unknown> | undefined
+  try {
+    const db = getDb()
+    row = db.prepare('SELECT * FROM artifacts WHERE id = ?').get(id) as Record<string, unknown> | undefined
+  } catch {
+    return NextResponse.json({ error: 'Base de datos no disponible (demo mode)' }, { status: 503 })
+  }
+
   if (!row) {
     return NextResponse.json({ error: 'Artefacto no encontrado' }, { status: 404 })
   }

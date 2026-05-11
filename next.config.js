@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverComponentsExternalPackages: ['better-sqlite3', 'pdfjs-dist'],
+    serverComponentsExternalPackages: ['better-sqlite3', 'pdfjs-dist', 'pdfkit'],
     serverActions: {
       bodySizeLimit: '16mb'
     }

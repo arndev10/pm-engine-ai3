@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getDb } from '@/lib/db'
+import { seedDemoData } from '@/lib/db/seed'
 import ProjectRowActions from './ProjectRowActions'
 
 export const dynamic = 'force-dynamic'
@@ -29,6 +30,9 @@ function fmtDate (s: string) {
 export default function ProjectsPage () {
   let projects: ProjectRow[] = []
   try {
+    // Seed demo data if empty (for demo/Vercel)
+    seedDemoData()
+
     const db = getDb()
     projects = db.prepare(`
       SELECT id, name, industry, duration_estimate, budget_estimate, methodology, created_at,

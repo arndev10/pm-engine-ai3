@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { unstable_noStore } from 'next/cache'
 import { getDb, jsonParse } from '@/lib/db'
-import ProcessDocumentButton from './ProcessDocumentButton'
+import { Suspense } from 'react'
+import GenerarTodo from './GenerarTodo'
 import ArtifactTabs from './ArtifactTabs'
 import ProjectHeader from './ProjectHeader'
 import ProjectRefreshOnEnter from './ProjectRefreshOnEnter'
@@ -55,19 +56,13 @@ export default async function ProjectDetailPage ({ params }: { params: Promise<{
         budgetEstimate={project.budget_estimate}
       />
 
-      {!hasContext && (
-        <div className="rounded-lg border border-warning/40 bg-warning/10 p-4">
-          <p className="font-medium text-foreground">Documento subido</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Procesa el documento para extraer el texto del PDF y preparar el contexto. Luego podrás generar los artefactos (Charter, Risk Register, etc.).
-          </p>
-          <div className="mt-4">
-            <ProcessDocumentButton projectId={id} />
-          </div>
-        </div>
+      {(!hasContext || artifacts.length < 4) && (
+        <Suspense fallback={null}>
+          <GenerarTodo projectId={id} yaProcesado={hasContext} />
+        </Suspense>
       )}
 
-      {hasContext && (
+      {hasContext && artifacts.length > 0 && (
         <>
           <ProjectRefreshOnEnter />
           <ArtifactTabs projectId={id} initialArtifacts={artifacts} />

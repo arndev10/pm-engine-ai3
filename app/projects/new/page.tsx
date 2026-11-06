@@ -83,7 +83,7 @@ export default function NewProjectPage () {
         setError(data.error ?? 'Error al subir')
         return
       }
-      router.push(`/projects/${data.project_id}`)
+      router.push(`/projects/${data.project_id}?auto=1`)
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Error de conexión'
       setError(`No se pudo conectar con el servidor. ¿Estás en la misma URL donde corre npm run dev? (ej. http://localhost:3003). ${msg}`)
@@ -102,7 +102,7 @@ export default function NewProjectPage () {
           Nuevo proyecto
         </h1>
         <p className="mt-1 text-muted-foreground">
-          Sube un contrato, SoW o RFP y completa los metadatos. Luego podrás procesar el documento y generar los artefactos.
+          Sube un contrato, SoW o RFP. Al crear el proyecto se genera solo el expediente completo: acta, riesgos, interesados y EDT.
         </p>
       </div>
 

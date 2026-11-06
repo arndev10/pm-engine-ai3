@@ -144,7 +144,7 @@ export default function ArtifactViewer ({ artifact, onSave }: Props) {
             value={observations}
             onChange={e => setObservations(e.target.value)}
             placeholder="Notas u observaciones sobre este artefacto…"
-            className="w-full rounded border border-input px-3 py-2 text-sm text-foreground min-h-[80px] focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="w-full rounded border border-input bg-input px-3 py-2 text-sm text-foreground min-h-[80px] focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           />
           <div className="mt-2 flex items-center gap-2">
             <button
@@ -210,10 +210,26 @@ function CharterView ({ data, isEditing, onChange }: {
   }
 
   return (
-    <div className="space-y-5 text-sm">
-      <Section title="Proyecto">
-        <EditableField value={data.project_name} isEditing={isEditing} onChange={v => update('project_name', v)} />
-      </Section>
+    <div className="space-y-6 text-sm">
+      <div className="rounded-lg border border-primary/25 bg-gradient-to-br from-primary/[0.08] to-transparent p-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Acta de constitución del proyecto · PMBOK 8</p>
+        <div className="mt-2 text-xl font-bold text-foreground">
+          <EditableField value={data.project_name} isEditing={isEditing} onChange={v => update('project_name', v)} />
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[
+            { n: data.objectives.length, l: 'objetivos' },
+            { n: data.deliverables.length, l: 'entregables' },
+            { n: data.milestones.length, l: 'hitos' },
+            { n: data.stakeholders.length, l: 'interesados clave' }
+          ].map(k => (
+            <div key={k.l} className="rounded-md border border-border bg-background/60 px-3 py-2">
+              <p className="text-2xl font-bold tabular-nums text-foreground">{k.n}</p>
+              <p className="text-xs text-muted-foreground">{k.l}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <Section title="Alcance">
         <EditableTextarea value={data.scope_summary} isEditing={isEditing} onChange={v => update('scope_summary', v)} />
@@ -241,20 +257,15 @@ function CharterView ({ data, isEditing, onChange }: {
       </Section>
 
       <Section title="Hitos">
-        <table className="w-full text-left">
-          <thead><tr className="border-b border-border">
-            <th className="py-1 pr-4 font-medium text-muted-foreground">Hito</th>
-            <th className="py-1 font-medium text-muted-foreground">Fecha estimada</th>
-          </tr></thead>
-          <tbody>
-            {data.milestones.map((m, i) => (
-              <tr key={i} className="border-b border-border">
-                <td className="py-1.5 pr-4">{m.name}</td>
-                <td className="py-1.5 text-muted-foreground">{m.date_estimate ?? '—'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <ol className="relative mt-2 space-y-3 border-l border-primary/30 pl-5">
+          {data.milestones.map((m, i) => (
+            <li key={i} className="relative">
+              <span className="absolute -left-[26px] top-1 h-3 w-3 rounded-full border-2 border-primary bg-background" />
+              <p className="font-medium text-foreground">{m.name}</p>
+              <p className="font-mono text-xs text-muted-foreground">{m.date_estimate ?? 'por definir'}</p>
+            </li>
+          ))}
+        </ol>
       </Section>
 
       <div className="grid grid-cols-2 gap-4">
@@ -275,7 +286,7 @@ function CharterView ({ data, isEditing, onChange }: {
         </Section>
       </div>
 
-      <Section title="Stakeholders">
+      <Section title="Interesados clave">
         <table className="w-full text-left">
           <thead><tr className="border-b border-border">
             <th className="py-1 pr-4 font-medium text-muted-foreground">Rol</th>
@@ -292,7 +303,7 @@ function CharterView ({ data, isEditing, onChange }: {
         </table>
       </Section>
 
-      <Section title="Criterios de Aprobación">
+      <Section title="Criterios de aprobación">
         <EditableList items={data.approval_criteria} isEditing={isEditing} onChange={v => update('approval_criteria', v)} />
       </Section>
     </div>
@@ -302,10 +313,10 @@ function CharterView ({ data, isEditing, onChange }: {
 /* ── Risk Register ── */
 
 const SEVERITY_COLORS: Record<string, string> = {
-  critico: 'bg-red-100 text-red-800',
-  alto: 'bg-orange-100 text-orange-800',
-  medio: 'bg-yellow-100 text-yellow-800',
-  bajo: 'bg-green-100 text-green-800'
+  critico: 'bg-red-500/15 text-red-400 ring-1 ring-red-500/30',
+  alto: 'bg-orange-500/15 text-orange-400 ring-1 ring-orange-500/30',
+  medio: 'bg-yellow-500/15 text-yellow-300 ring-1 ring-yellow-500/30',
+  bajo: 'bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30'
 }
 
 function RiskRegisterView ({ data, isEditing, onChange }: {
@@ -319,6 +330,8 @@ function RiskRegisterView ({ data, isEditing, onChange }: {
   }
 
   return (
+    <div className="space-y-6">
+    {!isEditing && <RiskMatrix risks={data.risks} />}
     <table className="w-full text-left text-sm">
       <thead>
         <tr className="border-b border-border">
@@ -338,7 +351,7 @@ function RiskRegisterView ({ data, isEditing, onChange }: {
             <td className="py-2 pr-2 text-muted-foreground">{r.id}</td>
             <td className="py-2 pr-2 max-w-xs">
               {isEditing
-                ? <input className="w-full rounded border border-input px-1 py-0.5 text-sm" value={r.description} onChange={e => updateRow(i, 'description', e.target.value)} />
+                ? <input className="w-full rounded border border-input bg-input px-1 py-0.5 text-sm" value={r.description} onChange={e => updateRow(i, 'description', e.target.value)} />
                 : r.description}
             </td>
             <td className="py-2 pr-2 capitalize">{r.probability}</td>
@@ -350,7 +363,7 @@ function RiskRegisterView ({ data, isEditing, onChange }: {
             </td>
             <td className="py-2 pr-2 max-w-xs">
               {isEditing
-                ? <input className="w-full rounded border border-input px-1 py-0.5 text-sm" value={r.mitigation} onChange={e => updateRow(i, 'mitigation', e.target.value)} />
+                ? <input className="w-full rounded border border-input bg-input px-1 py-0.5 text-sm" value={r.mitigation} onChange={e => updateRow(i, 'mitigation', e.target.value)} />
                 : r.mitigation}
             </td>
             <td className="py-2 pr-2">{r.owner}</td>
@@ -359,15 +372,70 @@ function RiskRegisterView ({ data, isEditing, onChange }: {
         ))}
       </tbody>
     </table>
+    </div>
+  )
+}
+
+const NIVELES = ['alta', 'media', 'baja'] as const
+const IMPACTOS = ['bajo', 'medio', 'alto'] as const
+const CELDA: Record<string, string> = {
+  'alta-alto': 'bg-red-500/25 ring-red-500/40', 'alta-medio': 'bg-orange-500/20 ring-orange-500/35', 'alta-bajo': 'bg-yellow-500/15 ring-yellow-500/30',
+  'media-alto': 'bg-orange-500/20 ring-orange-500/35', 'media-medio': 'bg-yellow-500/15 ring-yellow-500/30', 'media-bajo': 'bg-emerald-500/10 ring-emerald-500/25',
+  'baja-alto': 'bg-yellow-500/15 ring-yellow-500/30', 'baja-medio': 'bg-emerald-500/10 ring-emerald-500/25', 'baja-bajo': 'bg-emerald-500/10 ring-emerald-500/25'
+}
+
+function RiskMatrix ({ risks }: { risks: RiskRegisterContent['risks'] }) {
+  const criticos = risks.filter(r => r.severity === 'critico' || (r.probability === 'alta' && r.impact === 'alto')).length
+  return (
+    <div className="grid gap-6 md:grid-cols-[1fr_220px]">
+      <div>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Matriz de probabilidad e impacto</p>
+        <div className="grid grid-cols-[28px_repeat(3,1fr)] gap-1.5">
+          {NIVELES.map(p => (
+            <div key={p} className="contents">
+              <div className="flex items-center justify-center text-[10px] uppercase tracking-wider text-muted-foreground [writing-mode:vertical-rl] rotate-180">{p}</div>
+              {IMPACTOS.map(im => {
+                const aqui = risks.filter(r => r.probability === p && r.impact === im)
+                return (
+                  <div key={im} className={`min-h-[78px] rounded-md p-2 ring-1 ${CELDA[`${p}-${im}`]}`}>
+                    <div className="flex flex-wrap gap-1.5">
+                      {aqui.map(r => (
+                        <span key={r.id} title={r.description} className="flex h-7 w-7 items-center justify-center rounded-full bg-background/80 text-xs font-bold text-foreground ring-1 ring-white/20">
+                          {r.id}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ))}
+          <div />
+          {IMPACTOS.map(im => (
+            <div key={im} className="pt-1 text-center text-[10px] uppercase tracking-wider text-muted-foreground">impacto {im}</div>
+          ))}
+        </div>
+      </div>
+      <div className="space-y-3">
+        <div className="rounded-lg border border-border bg-background/60 p-4">
+          <p className="text-3xl font-bold tabular-nums text-foreground">{risks.length}</p>
+          <p className="text-xs text-muted-foreground">riesgos identificados en el contrato</p>
+        </div>
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4">
+          <p className="text-3xl font-bold tabular-nums text-red-400">{criticos}</p>
+          <p className="text-xs text-muted-foreground">críticos: requieren respuesta antes del inicio</p>
+        </div>
+      </div>
+    </div>
   )
 }
 
 /* ── Stakeholder Register ── */
 
 const INFLUENCE_COLORS: Record<string, string> = {
-  alta: 'bg-purple-100 text-purple-800',
-  media: 'bg-blue-100 text-blue-800',
-  baja: 'bg-slate-100 text-slate-600'
+  alta: 'bg-violet-500/15 text-violet-300 ring-1 ring-violet-500/30',
+  media: 'bg-sky-500/15 text-sky-300 ring-1 ring-sky-500/30',
+  baja: 'bg-white/5 text-white/50 ring-1 ring-white/10'
 }
 
 function StakeholderView ({ data, isEditing, onChange }: {
@@ -381,6 +449,8 @@ function StakeholderView ({ data, isEditing, onChange }: {
   }
 
   return (
+    <div className="space-y-6">
+    {!isEditing && <PowerInterestGrid stakeholders={data.stakeholders} />}
     <table className="w-full text-left text-sm">
       <thead>
         <tr className="border-b border-border">
@@ -397,12 +467,12 @@ function StakeholderView ({ data, isEditing, onChange }: {
             <td className="py-2 pr-2 text-muted-foreground">{s.id}</td>
             <td className="py-2 pr-2 font-medium">
               {isEditing
-                ? <input className="w-full rounded border border-input px-1 py-0.5 text-sm" value={s.name_role} onChange={e => updateRow(i, 'name_role', e.target.value)} />
+                ? <input className="w-full rounded border border-input bg-input px-1 py-0.5 text-sm" value={s.name_role} onChange={e => updateRow(i, 'name_role', e.target.value)} />
                 : s.name_role}
             </td>
             <td className="py-2 pr-2">
               {isEditing
-                ? <input className="w-full rounded border border-input px-1 py-0.5 text-sm" value={s.interest} onChange={e => updateRow(i, 'interest', e.target.value)} />
+                ? <input className="w-full rounded border border-input bg-input px-1 py-0.5 text-sm" value={s.interest} onChange={e => updateRow(i, 'interest', e.target.value)} />
                 : s.interest}
             </td>
             <td className="py-2 pr-2">
@@ -412,24 +482,87 @@ function StakeholderView ({ data, isEditing, onChange }: {
             </td>
             <td className="py-2">
               {isEditing
-                ? <input className="w-full rounded border border-input px-1 py-0.5 text-sm" value={s.engagement_strategy} onChange={e => updateRow(i, 'engagement_strategy', e.target.value)} />
+                ? <input className="w-full rounded border border-input bg-input px-1 py-0.5 text-sm" value={s.engagement_strategy} onChange={e => updateRow(i, 'engagement_strategy', e.target.value)} />
                 : s.engagement_strategy}
             </td>
           </tr>
         ))}
       </tbody>
     </table>
+    </div>
+  )
+}
+
+const CUADRANTES = [
+  { poder: true, interes: false, titulo: 'Mantener satisfecho', tono: 'border-sky-500/30 bg-sky-500/[0.07]' },
+  { poder: true, interes: true, titulo: 'Gestionar de cerca', tono: 'border-primary/40 bg-primary/[0.08]' },
+  { poder: false, interes: false, titulo: 'Monitorear', tono: 'border-white/10 bg-white/[0.02]' },
+  { poder: false, interes: true, titulo: 'Mantener informado', tono: 'border-violet-500/30 bg-violet-500/[0.07]' }
+]
+
+function PowerInterestGrid ({ stakeholders }: { stakeholders: StakeholderRegisterContent['stakeholders'] }) {
+  const alto = (v?: string) => v === 'alta'
+  return (
+    <div>
+      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Matriz de poder e interés</p>
+      <div className="grid grid-cols-[22px_1fr]">
+        <div className="flex items-center justify-center text-[10px] uppercase tracking-wider text-muted-foreground [writing-mode:vertical-rl] rotate-180">poder →</div>
+        <div className="grid grid-cols-2 gap-1.5">
+          {CUADRANTES.map(c => {
+            const aqui = stakeholders.filter(s => alto(s.influence) === c.poder && alto(s.interest_level ?? 'media') === c.interes)
+            return (
+              <div key={c.titulo} className={`min-h-[120px] rounded-md border p-3 ${c.tono}`}>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/80">{c.titulo}</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {aqui.map(s => (
+                    <span key={s.id} className="rounded-full bg-background/80 px-2.5 py-1 text-xs text-foreground ring-1 ring-white/15">{s.name_role}</span>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      <p className="mt-1 pl-6 text-center text-[10px] uppercase tracking-wider text-muted-foreground">interés →</p>
+    </div>
   )
 }
 
 /* ── WBS Tree ── */
 
 function WBSView ({ data }: { data: WBSContent }) {
+  const paquetes = data.phases.reduce((n, f) => n + (f.children?.reduce((m, d) => m + (d.children?.length ?? 1), 0) ?? 0), 0)
   return (
-    <div className="space-y-1">
-      {data.phases.map(phase => (
-        <WBSNode key={phase.id} node={phase} depth={0} />
-      ))}
+    <div className="space-y-4">
+      <div className="flex justify-center">
+        <div className="rounded-lg border border-primary/40 bg-primary/[0.08] px-6 py-3 text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Estructura de desglose del trabajo</p>
+          <p className="mt-1 text-sm text-muted-foreground">{data.phases.length} fases · {paquetes} paquetes de trabajo</p>
+        </div>
+      </div>
+      <div className="mx-auto h-4 w-px bg-primary/40" />
+      <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${data.phases.length <= 4 ? Math.max(1, data.phases.length) : 3}, minmax(0, 1fr))` }}>
+        {data.phases.map(phase => (
+          <div key={phase.id} className="rounded-lg border border-border bg-background/60 p-3">
+            <p className="font-mono text-[11px] text-primary">{phase.id}</p>
+            <p className="font-semibold leading-snug text-foreground">{phase.name}</p>
+            <div className="mt-3 space-y-2">
+              {phase.children?.map(d => (
+                <div key={d.id} className="rounded-md border border-border bg-card p-2">
+                  <p className="text-xs font-medium text-foreground"><span className="mr-1 font-mono text-muted-foreground">{d.id}</span>{d.name}</p>
+                  {d.children && d.children.length > 0 && (
+                    <ul className="mt-1.5 space-y-1 border-l border-border pl-2">
+                      {d.children.map(tk => (
+                        <li key={tk.id} className="text-[11px] text-muted-foreground"><span className="mr-1 font-mono">{tk.id}</span>{tk.name}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -463,14 +596,14 @@ function Section ({ title, children }: { title: string; children: React.ReactNod
 
 function EditableField ({ value, isEditing, onChange }: { value: string; isEditing: boolean; onChange: (v: string) => void }) {
   if (isEditing) {
-    return <input className="w-full rounded border border-input px-2 py-1 text-sm" value={value} onChange={e => onChange(e.target.value)} />
+    return <input className="w-full rounded border border-input bg-input px-2 py-1 text-sm" value={value} onChange={e => onChange(e.target.value)} />
   }
   return <p className="text-foreground">{value}</p>
 }
 
 function EditableTextarea ({ value, isEditing, onChange }: { value: string; isEditing: boolean; onChange: (v: string) => void }) {
   if (isEditing) {
-    return <textarea className="w-full rounded border border-input px-2 py-1 text-sm min-h-[80px]" value={value} onChange={e => onChange(e.target.value)} />
+    return <textarea className="w-full rounded border border-input bg-input px-2 py-1 text-sm min-h-[80px]" value={value} onChange={e => onChange(e.target.value)} />
   }
   return <p className="text-foreground whitespace-pre-wrap">{value}</p>
 }
@@ -482,7 +615,7 @@ function EditableList ({ items, isEditing, onChange }: { items: string[]; isEdit
         {items.map((item, i) => (
           <input
             key={i}
-            className="w-full rounded border border-input px-2 py-1 text-sm"
+            className="w-full rounded border border-input bg-input px-2 py-1 text-sm"
             value={item}
             onChange={e => {
               const updated = [...items]

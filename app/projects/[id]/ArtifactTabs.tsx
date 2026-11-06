@@ -1,15 +1,16 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import type { ArtifactType, Artifact } from '@/types'
 import GenerateArtifactButton from './GenerateArtifactButton'
 import ArtifactViewer from './ArtifactViewer'
 
 const TABS: Array<{ type: ArtifactType; label: string }> = [
-  { type: 'charter', label: 'Charter' },
-  { type: 'risk_register', label: 'Risk Register' },
-  { type: 'stakeholder_register', label: 'Stakeholders' },
-  { type: 'wbs', label: 'WBS' }
+  { type: 'charter', label: 'Acta de constitución' },
+  { type: 'risk_register', label: 'Riesgos' },
+  { type: 'stakeholder_register', label: 'Interesados' },
+  { type: 'wbs', label: 'EDT' }
 ]
 
 interface Props {
@@ -18,7 +19,8 @@ interface Props {
 }
 
 export default function ArtifactTabs ({ projectId, initialArtifacts }: Props) {
-  const [activeTab, setActiveTab] = useState<ArtifactType>('charter')
+  const tabUrl = useSearchParams().get('tab') as ArtifactType | null
+  const [activeTab, setActiveTab] = useState<ArtifactType>(tabUrl && TABS.some(x => x.type === tabUrl) ? tabUrl : 'charter')
   const [artifacts, setArtifacts] = useState<Artifact[]>(initialArtifacts)
 
   useEffect(() => {
@@ -102,7 +104,7 @@ export default function ArtifactTabs ({ projectId, initialArtifacts }: Props) {
         />
         {activeArtifact && (
           <span className="text-xs text-muted-foreground">
-            Generado: {new Date(activeArtifact.updated_at).toLocaleString()}
+            Generado: {new Date(activeArtifact.updated_at).toLocaleString('es-PE', { timeZone: 'America/Lima', dateStyle: 'medium', timeStyle: 'short' })}
           </span>
         )}
       </div>

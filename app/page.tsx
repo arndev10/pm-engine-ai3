@@ -15,7 +15,7 @@ export default function HomePage () {
       {/* Hero */}
       <div className="relative z-10 flex flex-col items-center px-6 pt-28 pb-20 text-center">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[hsl(145,100%,46%,0.3)] bg-[hsl(145,100%,46%,0.08)] px-3.5 py-1 text-xs font-medium text-[hsl(145,100%,60%)]">
-          Powered by GPT-5 Nano · Alineado a PMBOK 8
+          Alineado a PMBOK 8 · Hecho por un PMP
         </div>
 
         <h1 className="max-w-3xl text-[3.5rem] font-bold leading-[1.05] tracking-tight sm:text-[4.5rem]">

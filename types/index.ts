@@ -76,6 +76,7 @@ export interface StakeholderRow {
   name_role: string
   interest: string
   influence: 'alta' | 'media' | 'baja'
+  interest_level?: 'alta' | 'media' | 'baja'
   engagement_strategy: string
 }
 

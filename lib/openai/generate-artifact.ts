@@ -54,6 +54,7 @@ Devuelve ÚNICAMENTE un JSON válido con esta estructura:
     "name_role": "string (nombre o rol del interesado)",
     "interest": "string (su interés principal en el proyecto)",
     "influence": "alta" | "media" | "baja",
+    "interest_level": "alta" | "media" | "baja" (cuánto le afecta o le importa el proyecto),
     "engagement_strategy": "string (cómo gestionarlo)"
   }]
 }
@@ -109,7 +110,9 @@ function buildUserMessage (
   meta: ProjectMetadata,
   type: ArtifactType
 ): string {
-  return `Proyecto: ${meta.name}
+  const hoy = new Date().toISOString().slice(0, 10)
+  return `Fecha de hoy: ${hoy}. Toda fecha estimada debe ser posterior a hoy (formato AAAA-MM-DD), salvo que el documento diga otra.
+Proyecto: ${meta.name}
 Industria: ${meta.industry}
 Duración estimada: ${meta.duration_estimate}
 Presupuesto estimado: ${meta.budget_estimate}
@@ -215,6 +218,7 @@ function validateStakeholderRegister (data: Record<string, unknown>): Stakeholde
       name_role: String(s.name_role ?? s.name ?? s.role ?? ''),
       interest: String(s.interest ?? ''),
       influence: asEnum(s.influence, ['alta', 'media', 'baja'], 'media') as StakeholderRegisterContent['stakeholders'][0]['influence'],
+      interest_level: asEnum(s.interest_level, ['alta', 'media', 'baja'], 'media') as 'alta' | 'media' | 'baja',
       engagement_strategy: String(s.engagement_strategy ?? s.strategy ?? '')
     }))
   }

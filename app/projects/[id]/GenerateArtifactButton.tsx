@@ -4,10 +4,10 @@ import { useState } from 'react'
 import type { ArtifactType, Artifact } from '@/types'
 
 const LABELS: Record<ArtifactType, string> = {
-  charter: 'Charter',
-  risk_register: 'Risk Register',
-  stakeholder_register: 'Stakeholder Register',
-  wbs: 'WBS',
+  charter: 'acta',
+  risk_register: 'riesgos',
+  stakeholder_register: 'interesados',
+  wbs: 'EDT',
   backlog: 'Backlog'
 }
 

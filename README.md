@@ -15,7 +15,9 @@ SaaS de gestión de proyectos con IA. Sube un contrato, SoW o RFP en PDF — gen
 
 - **Carga de documentos**: PDF (contrato, SoW, RFP)
 - **Extracción con IA**: contexto estructurado con OpenAI
-- **Generación de artefactos**: Charter, Risk Register, Stakeholder Matrix, WBS
+- **Un solo clic**: subes el PDF y se genera el expediente completo (acta, riesgos, interesados, EDT) con una lista de avance en vivo
+- **Artefactos visuales**: acta con línea de tiempo de hitos, matriz de probabilidad × impacto, cuadrante de poder e interés y EDT por fases
+- **Demo**: `demo/contrato-ficticio-clinicas-whatsapp.pdf` (documento ficticio, sin datos reales)
 - **Edición inline**: ajusta artefactos directamente en el UI
 - **Exportación**: Word + PDF
 - **Base de datos**: SQLite (local) / `/tmp` en Vercel

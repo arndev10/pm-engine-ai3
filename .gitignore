@@ -58,3 +58,28 @@ tsconfig.tsbuildinfo
 
 # docs internos solo locales
 DECISIONES_Y_RECOMENDACIONES.md
+
+# --- Credenciales (bloque estándar de /credenciales) ---
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+service-account*.json
+client_secret*.json
+**/*[Cc]redencial*
+**/*[Cc]redential*
+**/*[Ss]ecret*
+**/*[Pp]assword*
+**/*[Cc]ontrase*
+**/*[Ll]laves*
+**/*api-key*
+**/*apikey*
+
+# Contrato FICTICIO de la demo (sí va a git; los contratos reales no)
+!demo/*.pdf
